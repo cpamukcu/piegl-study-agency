@@ -1,0 +1,44 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+build/
+coverage/
+next-env.d.ts
+*.tsbuildinfo
+
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+*.[pP][eE][mM]
+*.[kK][eE][yY]
+
+# Private study data: never commit.
+# Real data lives in DATA_DIR (default ~/PIEGL-data), outside this repo.
+data/
+uploads/
+extracted/
+sessions/
+playwright/.auth/
+*.[dD][bB]
+*.[dD][bB]-*
+*.[sS][qQ][lL][iI][tT][eE]*
+
+# Course files (any letter case; .pptm/.docm are macro-enabled Office files)
+*.[pP][dD][fF]
+*.[pP][pP][tT]
+*.[pP][pP][tT][xXmM]
+*.[dD][oO][cC]
+*.[dD][oO][cC][xXmM]
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS, editor, local tool config
+.DS_Store
+.vscode/
+.idea/
+.claude/
