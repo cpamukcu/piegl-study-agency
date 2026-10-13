@@ -1,4 +1,6 @@
 import { connection } from "next/server";
+import { Icon } from "@/components/icons";
+import { CARD } from "@/components/ui";
 import { DataDirError, getDataDir } from "@/lib/data-dir";
 
 type DataDirStatus = { ok: true; path: string } | { ok: false; message: string };
@@ -14,12 +16,17 @@ function readDataDir(): DataDirStatus {
 
 function DataFolderCard({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-line bg-surface p-6">
-      <h2 className="font-serif text-lg">Data folder</h2>
-      <p className="mt-2 text-sm text-ink-muted">
-        Your database, course files, and ZJU session are kept here, outside the code repository.
-      </p>
-      {children}
+    <section className={CARD}>
+      <div className="flex gap-4">
+        <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-lavender-50 text-lavender">
+          <Icon name="folder" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg">Data folder</h2>
+          <p className="mt-1 text-sm text-ink-muted">Your database, course files, and ZJU session are kept here, outside the code repository.</p>
+          {children}
+        </div>
+      </div>
     </section>
   );
 }
@@ -32,7 +39,7 @@ export async function DataFolder() {
   return (
     <DataFolderCard>
       {dataDir.ok ? (
-        <p className="mt-3 font-mono text-sm">{dataDir.path}</p>
+        <p className="mt-3 break-all rounded-[12px] bg-tint px-3 py-2 font-mono text-[13px] text-ink ring-1 ring-line">{dataDir.path}</p>
       ) : (
         <p role="alert" className="mt-3 text-sm text-warn">
           {dataDir.message} Set DATA_DIR in .env.local.

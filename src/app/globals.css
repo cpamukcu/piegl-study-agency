@@ -1,57 +1,178 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. White-first, light only. Components use these semantic names,
+ * never raw hex values.
+ *
+ * Text colours: the palette's pastel accents are too light for small text on
+ * white, so each accent has a darker "-ink" partner of the same hue for text
+ * (all at least 4.5:1 on white). The pastel values stay for fills, icons and
+ * decoration.
+ */
 @theme {
-  --color-paper: #f4f5fb;
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-tint: #fafbff;
   --color-surface: #ffffff;
-  --color-surface-strong: #f0eefc;
-  --color-ink: #3b3f5c;
-  --color-ink-muted: #8f94b3;
-  --color-line: #eceef6;
-  --color-accent: #8b6cf6;
-  --color-warn: #e6487e;
+  --color-surface-soft: #f8f6ff;
+  --color-line: #ecebf4;
+  --color-line-strong: #e4e2ef;
 
-  /* Headings use the same rounded sans as the body; "serif" is kept as a name only. */
-  --font-serif: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, "PingFang SC", "Segoe UI", sans-serif;
-  --font-sans: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, "PingFang SC", "Segoe UI", sans-serif;
+  /* Text */
+  --color-ink: #302a52;
+  --color-body: #5e5878;
+  --color-ink-muted: #6e6890;
+  --color-faint: #9993b1;
+  --color-disabled: #c6c2d4;
 
-  --shadow-soft: 0 12px 30px rgba(108, 99, 255, 0.1);
+  /* Accents (fills, icons, decoration) */
+  --color-periwinkle: #6978e8;
+  --color-lavender: #9a75ee;
+  --color-lilac: #c5a4f6;
+  --color-pink: #ec6cb6;
+  --color-blush: #fce5f3;
+  --color-sky: #7fa7f7;
+  --color-mint: #68bca8;
+  --color-amber: #d8a24b;
+  --color-coral: #ec7d7d;
+
+  /* Accent text, same hues, readable on white */
+  --color-accent: #6a4fd6;
+  --color-periwinkle-ink: #4f5cc8;
+  --color-mint-ink: #2f7f6c;
+  --color-amber-ink: #94631a;
+  --color-coral-ink: #b5434b;
+
+  /* Pale tints for soft badges and icon circles */
+  --color-lavender-50: #f3effe;
+  --color-periwinkle-50: #eef0fd;
+  --color-sky-50: #edf3fe;
+  --color-mint-50: #e9f6f2;
+  --color-amber-50: #fbf3e4;
+  --color-coral-50: #fdeeee;
+
+  /* Older names, kept so nothing that still uses them breaks */
+  --color-paper: #ffffff;
+  --color-surface-strong: #f3effe;
+  --color-warn: #b5434b;
+
+  --font-sans: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, Inter, "Plus Jakarta Sans", "Segoe UI", "PingFang SC", system-ui, sans-serif;
+  --font-display: "SF Pro Display", -apple-system, BlinkMacSystemFont, Inter, "Plus Jakarta Sans", "Segoe UI", "PingFang SC", system-ui, sans-serif;
+  --font-serif: var(--font-display);
+
+  --shadow-card: 0 8px 24px rgba(73, 58, 126, 0.07);
+  --shadow-lift: 0 12px 30px rgba(73, 58, 126, 0.12);
+  --shadow-soft: 0 8px 24px rgba(73, 58, 126, 0.07);
+  --shadow-nav: 0 -6px 24px rgba(73, 58, 126, 0.06);
+
+  --radius-card-lg: 24px;
+  --radius-card: 18px;
+  --radius-control: 12px;
+
+  --ease-soft: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 :root {
-  --grad-brand: linear-gradient(135deg, #6a85f1 0%, #9b74f0 55%, #c86de8 100%);
-  --grad-hot: linear-gradient(135deg, #f6739b 0%, #e46fd0 55%, #b86df0 100%);
+  /* The spec's gradients. */
+  --grad-hero: linear-gradient(135deg, #6b7de5 0%, #9a78eb 52%, #e481bb 100%);
+  --grad-action-raw: linear-gradient(135deg, #ef70b7 0%, #b66be8 100%);
+  --grad-wash: linear-gradient(135deg, rgba(117, 134, 235, 0.1), rgba(231, 123, 187, 0.08));
+  /* The action gradient under a light ink shade, for anything with white text on it. */
+  --grad-action: linear-gradient(rgba(42, 31, 92, 0.28), rgba(42, 31, 92, 0.28)), var(--grad-action-raw);
+  /* Pale active pill for navigation. */
+  --grad-pill: linear-gradient(135deg, #efeafd 0%, #fbe7f3 100%);
+
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-paper: #17162a;
-    --color-surface: #232140;
-    --color-surface-strong: #2e2b52;
-    --color-ink: #ecebfa;
-    --color-ink-muted: #a3a2cb;
-    --color-line: #34315a;
-    --color-accent: #b9a6ff;
-    --color-warn: #ff8fb1;
-    --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.35);
-    --grad-brand: linear-gradient(135deg, #4b5fc4 0%, #7656d0 55%, #9d4fc4 100%);
-  }
+@utility bg-hero {
+  background-image: var(--grad-hero);
 }
 
-/* Brand gradients: headers and primary buttons (brand), active items and highlights (hot). */
+@utility bg-action {
+  background-image: var(--grad-action);
+}
+
+@utility bg-wash {
+  background-image: var(--grad-wash);
+}
+
+@utility bg-pill {
+  background-image: var(--grad-pill);
+}
+
+/* Older names, mapped onto the new gradients. */
 @utility bg-brand {
-  background-image: var(--grad-brand);
+  background-image: var(--grad-action);
 }
 
 @utility bg-hot {
-  background-image: var(--grad-hot);
+  background-image: var(--grad-action);
+}
+
+/* Cards that respond to the pointer: a 2px lift and a slightly stronger shadow. */
+@utility lift {
+  transition:
+    transform 180ms var(--ease-soft),
+    box-shadow 180ms var(--ease-soft),
+    background-color 180ms var(--ease-soft);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lift);
+  }
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+/* Horizontal scroll rows: snap to cards and hide the scrollbar, keeping a peek of the next card. */
+@utility scroll-row {
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.25rem;
+  scrollbar-width: none;
+  & > * {
+    scroll-snap-align: start;
+  }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 html {
-  color-scheme: light dark;
+  background-color: var(--color-canvas);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-body);
 }
 
 h1,
 h2,
 h3 {
-  font-weight: 600;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: #e7dffd;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

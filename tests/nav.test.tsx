@@ -25,14 +25,16 @@ describe("isActive", () => {
 });
 
 describe("Nav", () => {
-  it("lists the eight sections in order", () => {
+  it("lists every section in order, with Settings last", () => {
     render(<Nav />);
     const links = screen.getAllByRole("link");
     expect(links.map((link) => link.textContent)).toEqual([
       "Today",
-      "Courses",
+      "Timetable",
+      "Tasks",
       "Deadlines",
-      "Prepare Class",
+      "Courses",
+      "Prepare",
       "Research",
       "Practice",
       "Weekly Review",
@@ -40,8 +42,10 @@ describe("Nav", () => {
     ]);
     expect(links.map((link) => link.getAttribute("href"))).toEqual([
       "/today",
-      "/courses",
+      "/timetable",
+      "/tasks",
       "/deadlines",
+      "/courses",
       "/prepare",
       "/research",
       "/practice",
@@ -66,7 +70,7 @@ describe("NavLinks", () => {
   it("renders the full menu with nothing marked while the current page is unknown", () => {
     render(<NavLinks pathname="" />);
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(8);
+    expect(links).toHaveLength(10);
     expect(links.filter((link) => link.hasAttribute("aria-current"))).toEqual([]);
   });
 });

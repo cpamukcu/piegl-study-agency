@@ -1,15 +1,26 @@
-import { SoftShapes } from "@/components/soft-shapes";
+import { Icon, type IconName } from "@/components/icons";
 
-type PageHeaderProps = { title: string; description: string };
+type PageHeaderProps = { title: string; description: string; icon?: IconName; children?: React.ReactNode };
 
-export function PageHeader({ title, description }: PageHeaderProps) {
+// A calm white page header: soft icon, large title, one line of help, optional actions.
+// Gradients are kept for the Today hero; other pages only get a faint wash in the corner.
+export function PageHeader({ title, description, icon, children }: PageHeaderProps) {
   return (
-    <header className="relative -mx-4 mb-8 overflow-hidden bg-brand px-6 pb-10 pt-8 text-white md:mx-0 md:rounded-[28px] md:px-8">
-      <SoftShapes />
-      <div className="relative">
-        <h1 className="text-3xl tracking-tight">{title}</h1>
-        <p className="mt-2 max-w-prose leading-relaxed text-white/85">{description}</p>
+    <header className="relative mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-16 hidden h-48 w-72 rounded-full bg-wash blur-2xl sm:block"
+      />
+      <div className="relative min-w-0">
+        {icon && (
+          <span className="mb-4 inline-flex size-11 items-center justify-center rounded-2xl bg-lavender-50 text-lavender">
+            <Icon name={icon} className="size-[22px]" />
+          </span>
+        )}
+        <h1 className="text-[32px] leading-[1.1] tracking-tight sm:text-[36px]">{title}</h1>
+        <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-muted">{description}</p>
       </div>
+      {children && <div className="relative flex shrink-0 flex-wrap gap-2">{children}</div>}
     </header>
   );
 }

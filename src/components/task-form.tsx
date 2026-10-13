@@ -26,8 +26,8 @@ export function TaskForm({ courses, defaultCourseId = "" }: { courses: CourseOpt
   const e = state.errors;
 
   return (
-    <section id="new-task" aria-labelledby="new-task-heading" className={CARD}>
-      <h2 id="new-task-heading" className="font-serif text-lg">
+    <section id="new-task" aria-labelledby="new-task-heading" className={`${CARD} scroll-mt-8`}>
+      <h2 id="new-task-heading" className="text-lg">
         Add a task
       </h2>
       <form key={state.nonce} action={action} noValidate className="mt-4 grid gap-4 sm:grid-cols-2">

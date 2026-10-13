@@ -1,13 +1,14 @@
-import { EmptyState } from "@/components/empty-state";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/page-header";
+import { ReviewData } from "@/components/review-data";
 
 export default function ReviewPage() {
   return (
     <>
-      <PageHeader title="Weekly Review" description="Look back at the week and plan a realistic next one." />
-      <EmptyState title="No weeks to review yet" art="chart">
-        What you planned, finished, postponed, and found confusing will show here.
-      </EmptyState>
+      <PageHeader title="Weekly Review" icon="review" description="Look back at the week and plan a realistic next one." />
+      <Suspense fallback={<p className="text-ink-muted">Loading your week…</p>}>
+        <ReviewData />
+      </Suspense>
     </>
   );
 }

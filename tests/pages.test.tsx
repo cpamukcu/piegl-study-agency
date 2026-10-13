@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
-import type { ComponentType } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 // DataFolder is an async server component (tested in data-folder.test.tsx);
@@ -21,6 +20,23 @@ vi.mock("@/components/today-data", () => ({
 vi.mock("@/components/import-section", () => ({
   ImportSection: () => null,
 }));
+vi.mock("@/components/today-header", () => ({
+  TodayGreeting: () => null,
+  TodayGreetingFallback: () => null,
+  TodayHeaderActions: () => null,
+}));
+vi.mock("@/components/timetable-data", () => ({
+  TimetableData: () => <section aria-label="Timetable stub" />,
+}));
+vi.mock("@/components/tasks-data", () => ({
+  TasksData: () => <section aria-label="Tasks stub" />,
+}));
+vi.mock("@/components/prepare-data", () => ({
+  PrepareData: () => <section aria-label="Prepare stub" />,
+}));
+vi.mock("@/components/review-data", () => ({
+  ReviewData: () => <section aria-label="Review stub" />,
+}));
 
 import CoursesPage from "@/app/courses/page";
 import DeadlinesPage from "@/app/deadlines/page";
@@ -29,10 +45,17 @@ import PreparePage from "@/app/prepare/page";
 import ResearchPage from "@/app/research/page";
 import ReviewPage from "@/app/review/page";
 import SettingsPage from "@/app/settings/page";
+import TasksPage from "@/app/tasks/page";
+import TimetablePage from "@/app/timetable/page";
 import TodayPage from "@/app/today/page";
 
-const PAGES: [string, ComponentType, string][] = [
-  ["today", TodayPage, "Today"],
+type Page = (props: { params: Promise<never>; searchParams: Promise<Record<string, string>> }) => React.ReactNode;
+const props = { params: Promise.resolve() as Promise<never>, searchParams: Promise.resolve({}) };
+
+const PAGES: [string, Page, string][] = [
+  ["today", TodayPage, "Your study day"],
+  ["timetable", TimetablePage, "Timetable"],
+  ["tasks", TasksPage, "Tasks"],
   ["courses", CoursesPage, "Courses"],
   ["deadlines", DeadlinesPage, "Deadlines"],
   ["prepare", PreparePage, "Prepare Class"],
@@ -44,14 +67,20 @@ const PAGES: [string, ComponentType, string][] = [
 
 describe("screens", () => {
   it.each(PAGES)("%s page has its heading", (_name, Page, heading) => {
-    render(<Page />);
+    render(<Page {...props} />);
     expect(screen.getByRole("heading", { level: 1, name: heading })).toBeInTheDocument();
   });
-
 
   it("Settings includes the data folder section", () => {
     render(<SettingsPage />);
     expect(screen.getByRole("region", { name: "Data folder stub" })).toBeInTheDocument();
+  });
+
+  it("Settings lists the keyboard shortcuts", () => {
+    render(<SettingsPage />);
+    const shortcuts = screen.getByRole("region", { name: "Keyboard shortcuts" });
+    expect(shortcuts).toHaveTextContent("New task");
+    expect(shortcuts).toHaveTextContent("Go to Deadlines");
   });
 
   it.each([

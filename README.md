@@ -31,6 +31,8 @@ npm run dev
 
 Open http://127.0.0.1:3100.
 
+To be greeted by name on Today, set `STUDENT_NAME` in `.env.local` (optional).
+
 ### Try it with sample data
 
 The repo holds no real student data. To see the app filled in, copy the fake snapshots into your data folder and import them:

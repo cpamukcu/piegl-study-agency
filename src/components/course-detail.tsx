@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { deleteCourseAction, deleteMeetingAction, deleteRuleAction } from "@/app/actions";
-import { CourseDot } from "@/components/course-dot";
+import { Icon } from "@/components/icons";
 import { CourseForm } from "@/components/course-form";
 import { MeetingForm } from "@/components/meeting-form";
 import { RuleForm } from "@/components/rule-form";
@@ -38,28 +38,40 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="flex items-center gap-3 font-serif text-3xl tracking-tight">
-          <CourseDot color={course.color} size="lg" />
-          {course.title}
-        </h1>
-        <p className="mt-2 text-ink-muted">{[course.code, course.instructor, course.semester].filter(Boolean).join(" · ")}</p>
+      <header className="relative overflow-hidden rounded-[28px] bg-surface p-6 shadow-card ring-1 ring-line/70 sm:p-8">
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5" style={{ backgroundColor: course.color }} />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-16 h-48 w-64 rounded-full bg-wash blur-2xl" />
+        <div className="relative flex items-start gap-4">
+          <span
+            aria-hidden="true"
+            className="flex size-14 shrink-0 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: `color-mix(in srgb, ${course.color} 14%, white)`, color: course.color }}
+          >
+            <Icon name="book" className="size-6" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-[28px] leading-tight tracking-tight sm:text-[34px]">{course.title}</h1>
+            <p className="mt-2 text-[15px] text-ink-muted">{[course.code, course.instructor, course.semester].filter(Boolean).join(" · ")}</p>
+          </div>
+        </div>
         {course.links.length > 0 && (
-          <ul className="mt-2 space-y-1 text-sm">
+          <ul className="relative mt-4 space-y-1.5 text-sm">
             {course.links.map((link) => (
-              <li key={link}>
-                <a href={link} target="_blank" rel="noreferrer" className="break-all underline underline-offset-2">
+              <li key={link} className="flex items-center gap-2">
+                <Icon name="link" className="size-4 text-faint" />
+                <a href={link} target="_blank" rel="noreferrer" className="break-all font-medium text-accent underline decoration-lilac underline-offset-4">
                   {link}
                 </a>
               </li>
             ))}
           </ul>
         )}
-        {course.notes && <p className="mt-2 max-w-prose text-sm">{course.notes}</p>}
+        {course.notes && <p className="relative mt-4 max-w-prose rounded-[16px] bg-surface-soft p-4 text-sm text-body">{course.notes}</p>}
       </header>
 
+      <div className="grid items-start gap-6 lg:grid-cols-2">
       <section aria-labelledby="meetings-heading" className={CARD}>
-        <h2 id="meetings-heading" className="font-serif text-lg">
+        <h2 id="meetings-heading" className="text-lg">
           Class times
         </h2>
         {meetings.length === 0 ? (
@@ -67,7 +79,7 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
         ) : (
           <ul className="mt-2">
             {meetings.map((m) => (
-              <li key={m.id} className="flex items-center justify-between gap-3 border-b border-line py-2 text-sm last:border-b-0">
+              <li key={m.id} className="flex items-center justify-between gap-3 border-b border-line py-3 text-sm font-medium text-ink last:border-b-0">
                 <span>{describeMeeting(m)}</span>
                 <form action={deleteMeetingAction}>
                   <input type="hidden" name="id" value={m.id} />
@@ -83,14 +95,14 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
       </section>
 
       <section aria-labelledby="rules-heading" className={CARD}>
-        <h2 id="rules-heading" className="font-serif text-lg">
+        <h2 id="rules-heading" className="text-lg">
           Prep routine
         </h2>
         <p className="mt-2 text-sm text-ink-muted">Creates a prep task before each class, for the next two weeks.</p>
         {rules.length > 0 && (
           <ul className="mt-2">
             {rules.map((rule) => (
-              <li key={rule.id} className="flex items-center justify-between gap-3 border-b border-line py-2 text-sm last:border-b-0">
+              <li key={rule.id} className="flex items-center justify-between gap-3 border-b border-line py-3 text-sm font-medium text-ink last:border-b-0">
                 <span>{describeRule(rule)}</span>
                 <form action={deleteRuleAction}>
                   <input type="hidden" name="id" value={rule.id} />
@@ -104,9 +116,10 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
         )}
         <RuleForm courseId={course.id} />
       </section>
+      </div>
 
       <section aria-labelledby="course-tasks-heading" className={CARD}>
-        <h2 id="course-tasks-heading" className="font-serif text-lg">
+        <h2 id="course-tasks-heading" className="text-lg">
           Open tasks
         </h2>
         {tasks.length === 0 ? (
@@ -122,8 +135,8 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
 
       <CourseForm course={course} />
 
-      <section aria-labelledby="delete-course-heading" className={CARD}>
-        <h2 id="delete-course-heading" className="font-serif text-lg">
+      <section aria-labelledby="delete-course-heading" className="rounded-[24px] bg-surface p-5 ring-1 ring-coral/25 sm:p-6">
+        <h2 id="delete-course-heading" className="text-lg">
           Delete course
         </h2>
         <p className="mt-2 text-sm text-ink-muted">Deletes the course and its class times. Its tasks stay, without a course.</p>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import { Icon } from "@/components/icons";
+import { BUTTON_PRIMARY } from "@/components/ui";
 import { INTEGRITY_ACK_KEY, INTEGRITY_TEXT } from "@/lib/integrity";
 
 function readAck(): boolean {
@@ -32,16 +34,25 @@ export function IntegrityBanner() {
   if (acknowledged || dismissed) return null;
 
   return (
-    <div role="region" aria-label="Before you start" className="mb-8 rounded-lg border border-accent/40 bg-surface p-4">
-      <p className="font-serif text-lg">Before you start</p>
-      <p className="mt-1 max-w-prose text-sm leading-relaxed text-ink-muted">{INTEGRITY_TEXT}</p>
+    <div
+      role="region"
+      aria-label="Before you start"
+      className="mb-8 flex flex-col gap-4 rounded-[24px] bg-wash p-5 ring-1 ring-lavender/25 sm:flex-row sm:items-center sm:p-6"
+    >
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-lavender shadow-card">
+        <Icon name="shield" className="size-[22px]" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-[17px] font-bold text-ink">Before you start</p>
+        <p className="mt-1 max-w-prose text-sm leading-relaxed text-body">{INTEGRITY_TEXT}</p>
+      </div>
       <button
         type="button"
         onClick={() => {
           writeAck();
           setDismissed(true);
         }}
-        className="mt-3 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className={`${BUTTON_PRIMARY} self-start sm:self-center`}
       >
         I understand
       </button>

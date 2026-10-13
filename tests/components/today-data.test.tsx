@@ -40,48 +40,63 @@ afterEach(() => {
 
 const card = (name: string) => screen.getByRole("heading", { level: 2, name }).closest("section") as HTMLElement;
 
+function importSample() {
+  const snapshots = path.join(dir, "snapshots");
+  mkdirSync(snapshots);
+  copyFileSync("sample-data/courses-zju-sample.json", path.join(snapshots, "courses-zju-2026-10-12.json"));
+  copyFileSync("sample-data/timetable-yjsy-sample.json", path.join(snapshots, "timetable-yjsy-2026-10-12.json"));
+  const db = getDb();
+  importSnapshots(db, snapshots, NOW);
+  return db;
+}
+
 describe("TodayData", () => {
-  it("answers the four daily questions with empty states on first run", async () => {
+  it("answers the daily questions with gentle empty states on first run", async () => {
     render(await TodayData());
-    for (const name of ["Due next", "Prepare next", "Highest-leverage task", "Confusing concepts"]) {
+    for (const name of ["Up next", "Best next step", "Deadlines coming up", "Today’s timetable", "Study plan", "Things to revisit"]) {
       expect(screen.getByRole("heading", { level: 2, name })).toBeInTheDocument();
     }
-    expect(within(card("Due next")).getByText(/Nothing due yet/)).toBeInTheDocument();
+    expect(within(card("Deadlines coming up")).getByText(/Add a course or a deadline/)).toBeInTheDocument();
+    expect(within(card("Today’s timetable")).getByText(/No classes or deadlines today/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Add your first task/ })).toHaveAttribute("href", "/deadlines#new-task");
   });
 
   it("fills the cards from imported data", async () => {
-    const snapshots = path.join(dir, "snapshots");
-    mkdirSync(snapshots);
-    copyFileSync("sample-data/courses-zju-sample.json", path.join(snapshots, "courses-zju-2026-10-12.json"));
-    copyFileSync("sample-data/timetable-yjsy-sample.json", path.join(snapshots, "timetable-yjsy-2026-10-12.json"));
-    importSnapshots(getDb(), snapshots, NOW);
-
+    importSample();
     render(await TodayData());
 
-    const due = card("Due next");
-    expect(within(due).getAllByRole("listitem").map((li) => li.querySelector("p")?.textContent)).toEqual([
+    const due = card("Deadlines coming up");
+    expect(within(due).getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
       "Characters L2",
       "Forum: Discussion week 5",
       "Quiz 1",
     ]);
+    expect(within(due).getAllByText("In 2 days")).toHaveLength(2);
+    expect(within(due).getByText("In 3 days")).toBeInTheDocument();
 
-    const prepare = card("Prepare next");
-    expect(within(prepare).getByText("Demo Strategy")).toBeInTheDocument();
-    expect(within(prepare).getByText("Tomorrow 8:50 · Demo Hall 101")).toBeInTheDocument();
-    expect(within(prepare).getByRole("link", { name: "Add a prep routine" })).toBeInTheDocument();
+    const next = card("Up next");
+    expect(within(next).getByText("Demo Strategy")).toBeInTheDocument();
+    expect(within(next).getByText("Class starts Tomorrow 8:50")).toBeInTheDocument();
+    expect(within(next).getByText("Demo Hall 101")).toBeInTheDocument();
+    expect(within(next).getByRole("link", { name: "Add a prep routine" })).toBeInTheDocument();
 
-    const top = card("Highest-leverage task");
+    const top = card("Best next step");
     expect(within(top).getByText("Characters L2")).toBeInTheDocument();
     expect(within(top).getByText("Due Wed 12:00")).toBeInTheDocument();
+    expect(within(top).getByRole("button", { name: 'Mark "Characters L2" done' })).toBeInTheDocument();
+
+    const plan = card("Study plan");
+    expect(within(plan).getByRole("button", { name: 'Mark "Quiz 1" done' })).toBeInTheDocument();
+    expect(within(plan).getByRole("button", { name: 'Postpone "Quiz 1" by one day' })).toBeInTheDocument();
+
+    const stats = screen.getByLabelText("This week at a glance");
+    expect(within(stats).getByText("Due this week")).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Quick actions" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Plan my next hour" })).toHaveAttribute("href", "#best-next-step");
   });
 
   it("shows the prep as done instead of offering a new routine", async () => {
-    const snapshots = path.join(dir, "snapshots");
-    mkdirSync(snapshots);
-    copyFileSync("sample-data/courses-zju-sample.json", path.join(snapshots, "courses-zju-2026-10-12.json"));
-    copyFileSync("sample-data/timetable-yjsy-sample.json", path.join(snapshots, "timetable-yjsy-2026-10-12.json"));
-    const db = getDb();
-    importSnapshots(db, snapshots, NOW);
+    const db = importSample();
     const strategy = getCourseByExternalId(db, "tc:course:900001");
     if (!strategy) throw new Error("missing course");
     createRule(db, { courseId: strategy.id, title: "Prepare for class", leadMinutes: 720 });
@@ -90,8 +105,20 @@ describe("TodayData", () => {
     setTaskStatus(db, prep.id, "done", NOW);
 
     render(await TodayData());
-    const prepare = card("Prepare next");
-    expect(within(prepare).getByText("Prep done")).toBeInTheDocument();
-    expect(within(prepare).queryByRole("link", { name: "Add a prep routine" })).not.toBeInTheDocument();
+    const next = card("Up next");
+    expect(within(next).getByText("Prep done")).toBeInTheDocument();
+    expect(within(next).queryByRole("link", { name: "Add a prep routine" })).not.toBeInTheDocument();
+    expect(within(next).queryByRole("button", { name: /Mark prep done/ })).not.toBeInTheDocument();
+  });
+
+  it("offers to mark an open prep task done", async () => {
+    const db = importSample();
+    const strategy = getCourseByExternalId(db, "tc:course:900001");
+    if (!strategy) throw new Error("missing course");
+    createRule(db, { courseId: strategy.id, title: "Prepare for class", leadMinutes: 720 });
+
+    render(await TodayData());
+    const next = card("Up next");
+    expect(within(next).getByRole("button", { name: /Mark prep done/ })).toBeInTheDocument();
   });
 });
