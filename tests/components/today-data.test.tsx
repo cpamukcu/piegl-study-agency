@@ -92,7 +92,9 @@ describe("TodayData", () => {
     const stats = screen.getByLabelText("This week at a glance");
     expect(within(stats).getByText("Due this week")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Quick actions" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Plan my next hour" })).toHaveAttribute("href", "#best-next-step");
+    expect(screen.getByRole("link", { name: "Plan my next hour" })).toHaveAttribute("href", "#focus-for-now");
+    expect(screen.getByRole("region", { name: "Focus for now" })).toBeInTheDocument();
+    expect(screen.getByRole("slider", { name: "Focus duration" })).toBeInTheDocument();
   });
 
   it("shows the prep as done instead of offering a new routine", async () => {

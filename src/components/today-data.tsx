@@ -4,6 +4,7 @@ import { setTaskStatusAction } from "@/app/actions";
 import { CourseBadge } from "@/components/course-dot";
 import { DeadlineCard } from "@/components/deadline-card";
 import { EmptyState } from "@/components/empty-state";
+import { FocusDial, type FocusTask } from "@/components/focus-dial";
 import { GradientHero } from "@/components/gradient-hero";
 import { Icon } from "@/components/icons";
 import { StatusPill } from "@/components/priority-pill";
@@ -69,6 +70,17 @@ export async function TodayData() {
   const timeline = dayTimeline(dayStart, sessionsBetween(meetings, terms, dayStart, dayStart + DAY_MS), tasks, now);
   const dueToday = tasks.filter((t) => isOpen(t) && t.dueAt !== null && t.dueAt >= now && t.dueAt < dayStart + DAY_MS).length;
   const ranked = rankTasks(tasks, now);
+  const focusTasks: FocusTask[] = ranked.slice(0, 6).map(({ task }) => {
+    const course = courseOf(task.courseId);
+    return {
+      id: task.id,
+      title: task.title,
+      type: task.type,
+      courseTitle: course?.title ?? null,
+      courseColor: course?.color ?? null,
+      estMinutes: task.estMinutes,
+    };
+  });
   const plan = [
     ...ranked.slice(0, 5).map((s) => s.task),
     ...tasks.filter((t) => !isOpen(t) && t.completedAt !== null && t.completedAt >= dayStart),
@@ -119,7 +131,7 @@ export async function TodayData() {
           headline={headline}
           message={message}
           progress={progress.total > 0 ? progress : null}
-          action={view.top ? { href: "#best-next-step", label: "Plan my next hour" } : { href: "/deadlines#new-task", label: "Add your first task" }}
+          action={view.top ? { href: "#focus-for-now", label: "Plan my next hour" } : { href: "/deadlines#new-task", label: "Add your first task" }}
           aside={
             nextCourse && view.nextSession ? (
               <div className="w-64 rounded-[20px] bg-white p-4 text-body shadow-lift">
@@ -139,9 +151,9 @@ export async function TodayData() {
 
       <QuickActions actions={QUICK_ACTIONS} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2 lg:grid-rows-[auto_1fr]">
         {view.nextSession && nextCourse ? (
-          <section aria-labelledby="up-next-heading" className={`${CARD_LG} relative overflow-hidden`}>
+          <section aria-labelledby="up-next-heading" className={`${CARD_LG} relative overflow-hidden lg:col-start-1 lg:row-start-1`}>
             <span aria-hidden="true" className="absolute inset-y-6 left-0 w-1.5 rounded-r-full bg-action" />
             <div className="flex items-center justify-between gap-3">
               <h2 id="up-next-heading" className="text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">
@@ -201,16 +213,22 @@ export async function TodayData() {
             </div>
           </section>
         ) : (
-          <EmptyState title="Up next" icon="book">
-            Your next class will show here. Add class times to a course, or import your ZJU timetable in Settings.
-          </EmptyState>
+          <div className="lg:col-start-1 lg:row-start-1">
+            <EmptyState title="Up next" icon="book">
+              Your next class will show here. Add class times to a course, or import your ZJU timetable in Settings.
+            </EmptyState>
+          </div>
         )}
+
+        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <FocusDial tasks={focusTasks} now={now} progress={progress.total > 0 ? progress : null} />
+        </div>
 
         {view.top ? (
           <section
             id="best-next-step"
             aria-labelledby="best-next-step-heading"
-            className="relative scroll-mt-8 overflow-hidden rounded-[24px] bg-wash p-5 shadow-card ring-1 ring-lavender/25 sm:p-7"
+            className="relative scroll-mt-8 overflow-hidden rounded-[24px] bg-wash p-5 shadow-card ring-1 ring-lavender/25 sm:p-7 lg:col-start-1 lg:row-start-2"
           >
             <svg aria-hidden="true" viewBox="0 0 120 120" className="absolute -right-6 -top-6 size-36 text-lavender/20">
               <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="10" />
@@ -254,9 +272,11 @@ export async function TodayData() {
             </div>
           </section>
         ) : (
-          <EmptyState title="Best next step" icon="focus">
-            The one task worth doing first today, with the reason, will show here.
-          </EmptyState>
+          <div className="lg:col-start-1 lg:row-start-2">
+            <EmptyState title="Best next step" icon="focus">
+              The one task worth doing first today, with the reason, will show here.
+            </EmptyState>
+          </div>
         )}
       </div>
 
