@@ -3,6 +3,7 @@ import { DataFolder, DataFolderFallback } from "@/components/data-folder";
 import { ImportSection } from "@/components/import-section";
 import { IntegrityNote } from "@/components/integrity-note";
 import { PageHeader } from "@/components/page-header";
+import { SyncSection } from "@/components/sync-section";
 
 export default function SettingsPage() {
   return (
@@ -14,6 +15,9 @@ export default function SettingsPage() {
         </Suspense>
         <Suspense fallback={null}>
           <ImportSection />
+        </Suspense>
+        <Suspense fallback={null}>
+          <SyncSection />
         </Suspense>
         <IntegrityNote />
       </div>

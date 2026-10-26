@@ -47,9 +47,29 @@ Then open **Settings → ZJU snapshots → Import ZJU snapshots**.
 
 The app reads saved snapshots of your Courses@ZJU data and graduate-system timetable from `DATA_DIR/snapshots/` (`courses-zju-YYYY-MM-DD.json`, `timetable-yjsy-YYYY-MM-DD.json`). Open **Settings → ZJU snapshots → Import**. Importing again later adds new items and picks up ZJU's changes (such as a moved due date), but never undoes your own edits: anything you renamed, re-dated, postponed, estimated, marked done or deleted stays as you left it.
 
-Fake examples of both files are in `sample-data/`. Automatic sync from ZJU arrives in the sync milestone.
+Fake examples of both files are in `sample-data/`. Automatic sync is described below.
 
 To show course names in English, put `course-names.json` in the same folder: a map from each ZJU course title to its English title, for example `{ "示例课程": "Example Course" }`. Rooms, semesters and room notes are translated automatically. You can also rename any course or task in the app; importing again never undoes that.
+
+## Automatic sync (every few days)
+
+Runs on your Mac. A dedicated Chrome profile (`DATA_DIR/browser-profile`, not your everyday Chrome) reads your Courses@ZJU courses, deadlines and exams plus your graduate-system timetable with read-only requests, saves dated snapshots, and imports them. Your own edits are never overwritten.
+
+```bash
+npx playwright install chromium   # only if you do not use Google Chrome (then set SYNC_BROWSER=chromium)
+npm run sync:login      # once: a window opens, you log in to ZJU yourself, it closes by itself
+npm run sync -- --force # try it now
+npm run sync:schedule   # every morning at 08:30 it syncs if the last good sync is 3+ days old
+npm run sync:unschedule # turn it off
+```
+
+- `SYNC_EVERY_DAYS` in `.env.local` changes the interval (default 3). A Mac that was asleep makes up the missed run when it wakes.
+- When ZJU logs you out, the sync stops, shows a macOS notification and Settings says so. Run `npm run sync:login` again. Failed runs retry the next morning.
+- The login is kept in `DATA_DIR/zju-session.json` (readable only by you). Your password is never seen or stored. Delete that file and `DATA_DIR/browser-profile` to forget the session.
+- Logs: `DATA_DIR/logs/sync.log`. Status: Settings → Automatic ZJU sync.
+- Spring–summer term: set `ZJU_YJSY_XQ` (see `.env.example`).
+- The network notes in `docs/data-sources.md` (Mullvad split tunnel, DNS) apply to this Chrome too.
+- If ZJU changes a page or API, the sync fails with a message instead of importing partial data.
 
 ## Scripts
 
@@ -67,7 +87,7 @@ Planned for milestone M2: PDF and PowerPoint (`.pptx`) with real text. Scanned s
 ## Limitations
 
 - Mac only, one user, no phone access yet.
-- ZJU sync (M3) depends on how ZJU sites work today and may break when they change. Manual entry always works.
+- ZJU sync depends on how ZJU sites work today and may break when they change. Manual entry always works.
 - ZJU's terms may not allow automated access. You decide whether to use sync.
 
 ## Roadmap
@@ -76,7 +96,7 @@ Planned for milestone M2: PDF and PowerPoint (`.pptx`) with real text. Scanned s
 |---|---|
 | M0 Foundation: app shell, privacy guards, docs | Done |
 | M1 Courses and Deadlines, snapshot import | Done |
-| Sync: Courses@ZJU and timetable, read-only | Next |
+| Sync: Courses@ZJU and timetable, read-only | Built, needs a first real run on your Mac |
 | M2 Materials: upload, extract, view, download from Courses@ZJU | Planned |
 | M4 AI and Class Ready Brief | Planned |
 | M5 Professor Mode | Planned |
