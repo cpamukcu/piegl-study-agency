@@ -96,6 +96,13 @@ describe("graduate timetable build", () => {
     expect(snap.calendar).toMatchObject({ start: "2026-09-14", weeks: 18, teaching_weeks: 16 });
   });
 
+  it("reads the live `result` envelope", () => {
+    const live = (body: unknown) => ({ success: true, code: 200, result: body, timestamp: 1 });
+    const snap = buildYjsySnapshot(live(calendar.data), live(timetable.data), { year: "2026", termCode: "12" }, NOW);
+    expect(snap.calendar.start).toBe("2026-09-14");
+    expect(snap.classes).toHaveLength(1);
+  });
+
   it("fails loudly on an empty timetable or a calendar it cannot read", () => {
     expect(() => buildYjsySnapshot(calendar, { data: { kcbMap: {}, sjddList: [] } }, { year: "2026", termCode: "12" }, NOW)).toThrow(SyncError);
     expect(() => buildYjsySnapshot({ data: {} }, timetable, { year: "2026", termCode: "12" }, NOW)).toThrow(SyncError);

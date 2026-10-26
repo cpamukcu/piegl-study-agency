@@ -17,10 +17,15 @@ const num = (value: unknown): number | null => {
   return typeof n === "number" && Number.isFinite(n) ? n : null;
 };
 
-// ZJU wraps payloads in an envelope that has varied between endpoints, so look in both places.
+// ZJU wraps payloads in an envelope (`result` in live responses, `data` in some others), so look in all places.
+const payload = (raw: unknown): Obj => {
+  const top = obj(raw);
+  return obj(top.result ?? top.data ?? top);
+};
+
 function field(raw: unknown, key: string): unknown {
   const top = obj(raw);
-  return top[key] ?? obj(top.data)[key];
+  return top[key] ?? payload(raw)[key];
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -42,7 +47,7 @@ export function toIsoDate(value: unknown): string | null {
 export type YjsyParams = { year: string; termCode: string };
 
 export function buildYjsySnapshot(calendarRaw: unknown, timetableRaw: unknown, params: YjsyParams, now: number): YjsySnapshot {
-  const calendar = obj(obj(calendarRaw).kssj !== undefined ? calendarRaw : obj(calendarRaw).data);
+  const calendar = obj(obj(calendarRaw).kssj !== undefined ? calendarRaw : payload(calendarRaw));
   const start = toIsoDate(calendar.kssj);
   const weeks = num(calendar.zcs);
   if (!start || !weeks) {
