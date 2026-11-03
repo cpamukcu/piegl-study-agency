@@ -87,6 +87,10 @@ npm run sync:unschedule # turn it off
 
 Put your Anthropic API key in `.env.local` as `ANTHROPIC_API_KEY=…` and restart the app. Briefs and research plans use `ANTHROPIC_MODEL` (default `claude-sonnet-5-5`); set `ANTHROPIC_PROFESSOR_MODEL=claude-opus-5-5` to grade Professor Mode answers with a stronger model. Without a key everything else works and nothing is sent. To keep one course away from AI entirely, open it and press **Turn AI off for this course**. What is sent, exactly, is in [docs/PRIVACY.md](docs/PRIVACY.md#what-goes-to-anthropic-only-when-ai-is-on).
 
+## Public demo
+
+A read-only copy with fake data lives at https://cpamukcu.github.io/piegl-study-agency/today/. It is rebuilt from this code by `npm run demo -- <folder>`: the script seeds invented courses, files and AI results (`scripts/demo/seed.ts`) in a temporary folder, makes a production build under `/piegl-study-agency`, saves every page reachable from Today as static HTML, and adds a small script so links work and forms show a "nothing is saved" note instead of submitting. Publish the folder as the whole content of the `gh-pages` branch. No real data is ever involved, and no AI request is made.
+
 ## Scripts
 
 | Command | What it does |
@@ -95,6 +99,7 @@ Put your Anthropic API key in `.env.local` as `ANTHROPIC_API_KEY=…` and restar
 | `npm run build` | Production build |
 | `npm start` | Run the production build on 127.0.0.1:3100 |
 | `npm run check` | Lint, typecheck, and tests |
+| `npm run demo -- <folder>` | Build the static public demo with fake data (see above) |
 
 ## Supported file types
 

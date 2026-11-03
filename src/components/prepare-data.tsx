@@ -97,7 +97,7 @@ export async function PrepareData({ searchParams }: { searchParams: Promise<Sear
       {!ai.on && <AiOffNote />}
 
       {next && nextCourse ? (
-        <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
           <section aria-labelledby="next-class-heading" className={`${CARD_LG} relative overflow-hidden`}>
             <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-52 w-72 rounded-full bg-wash blur-2xl" />
             <div className="relative flex flex-wrap items-center justify-between gap-2">
