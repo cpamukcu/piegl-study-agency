@@ -26,7 +26,7 @@ export async function ResearchData() {
         </EmptyState>
       ) : (
         <section aria-labelledby="projects-heading" className={CARD}>
-          <h2 id="projects-heading" className="font-serif text-lg">
+          <h2 id="projects-heading" className="text-lg">
             Your questions
           </h2>
           <ul className="mt-2">
@@ -57,7 +57,7 @@ export async function ResearchData() {
         </section>
       )}
       <section aria-labelledby="new-project-heading" className={CARD}>
-        <h2 id="new-project-heading" className="font-serif text-lg">
+        <h2 id="new-project-heading" className="text-lg">
           New research question
         </h2>
         <ProjectForm courses={courses.map((c) => ({ id: c.id, title: c.title }))} />

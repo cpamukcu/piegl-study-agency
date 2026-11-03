@@ -11,7 +11,7 @@ export function QuestionForm({ courses }: { courses: { id: string; title: string
   const v = state.values ?? {};
   return (
     <section aria-labelledby="new-question-heading" className={CARD}>
-      <h2 id="new-question-heading" className="font-serif text-lg">
+      <h2 id="new-question-heading" className="text-lg">
         Add your own question
       </h2>
       <form key={state.nonce} action={action} noValidate className="mt-4 grid gap-4 sm:grid-cols-2">

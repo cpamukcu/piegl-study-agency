@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { deleteTaskAction, updateTaskAction } from "@/app/actions";
 import { FieldError, FormMessage, invalidProps } from "@/components/field";
+import { Icon } from "@/components/icons";
 import { BUTTON_DANGER, BUTTON_PRIMARY, INPUT, LABEL } from "@/components/ui";
 import type { Importance, TaskType } from "@/db/tasks";
 import { INITIAL_ACTION_STATE } from "@/lib/action-state";
@@ -33,11 +34,15 @@ export function TaskEditor({ task }: { task: EditableTask }) {
   const e = state.errors;
 
   return (
-    <details className="mt-2 text-sm">
-      <summary aria-label={`Edit "${task.title}"`} className="cursor-pointer text-ink-muted hover:text-ink">
+    <details className="group/edit mt-2 text-sm">
+      <summary
+        aria-label={`Edit "${task.title}"`}
+        className="inline-flex cursor-pointer list-none items-center gap-1 rounded-lg py-0.5 text-[13px] font-semibold text-ink-muted hover:text-accent [&::-webkit-details-marker]:hidden"
+      >
+        <Icon name="chevron-right" className="size-3.5 transition-transform duration-200 group-open/edit:rotate-90" />
         Edit
       </summary>
-      <form key={state.nonce} action={action} noValidate className="mt-3 grid gap-3 sm:grid-cols-2">
+      <form key={state.nonce} action={action} noValidate className="mt-3 grid gap-4 rounded-[18px] bg-tint p-4 ring-1 ring-line sm:grid-cols-2">
         <input type="hidden" name="id" value={task.id} />
         <input type="hidden" name="type" value={task.type} />
         <input type="hidden" name="courseId" value={task.courseId ?? ""} />

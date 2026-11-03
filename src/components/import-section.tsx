@@ -1,5 +1,6 @@
 import path from "node:path";
 import { connection } from "next/server";
+import { Icon } from "@/components/icons";
 import { ImportPanel } from "@/components/import-panel";
 import { CARD } from "@/components/ui";
 import { getDb } from "@/db/connection";
@@ -27,17 +28,24 @@ export async function ImportSection() {
 
   return (
     <section aria-labelledby="import-heading" className={CARD}>
-      <h2 id="import-heading" className="font-serif text-lg">
+      <div className="flex gap-4">
+      <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-sky-50 text-periwinkle">
+        <Icon name="import" />
+      </span>
+      <div className="min-w-0 flex-1">
+      <h2 id="import-heading" className="text-lg">
         ZJU snapshots
       </h2>
-      <p className="mt-2 text-sm text-ink-muted">
+      <p className="mt-1 text-sm text-ink-muted">
         Saved copies of your ZJU courses, deadlines and timetable, kept in <span className="font-mono">{dir}</span>. Importing adds
         new items and picks up ZJU&rsquo;s changes, such as a moved due date. It never undoes your own edits.
       </p>
       {files.length ? (
-        <ul className="mt-3 space-y-1 font-mono text-sm">
+        <ul className="mt-3 divide-y divide-line rounded-[14px] bg-tint font-mono text-[13px] text-ink ring-1 ring-line">
           {files.map((file) => (
-            <li key={file}>{file}</li>
+            <li key={file} className="px-3 py-2">
+              {file}
+            </li>
           ))}
         </ul>
       ) : (
@@ -47,6 +55,8 @@ export async function ImportSection() {
         {last ? `Last import: ${formatDue(last.importedAt, requestTime())} (${last.fileName})` : "Not imported yet."}
       </p>
       <ImportPanel files={files} />
+      </div>
+      </div>
     </section>
   );
 }

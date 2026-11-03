@@ -387,5 +387,5 @@ export async function saveReviewAction(_prev: ActionState, fd: FormData): Promis
     reflection: text(fd, "reflection", 5000),
     plan: items.map((i) => ({ ...i, title: titles.get(i.taskId) ?? "" })).sort((a, b) => a.day - b.day),
   });
-  return done("Review saved. Next week's plan shows on Today each day.");
+  return done("Review saved. Each day's planned tasks show first in Today's study plan.");
 }

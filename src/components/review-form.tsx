@@ -48,7 +48,7 @@ export function ReviewForm({
       </div>
 
       <fieldset>
-        <legend className="font-serif text-lg">Next week&rsquo;s plan</legend>
+        <legend className="text-lg">Next week&rsquo;s plan</legend>
         <p className="mt-1 text-sm text-ink-muted">
           Suggested from your deadlines and estimates, earliest deadline first, about 3 hours a day. Untick or move anything; a task can never be planned after its
           deadline.

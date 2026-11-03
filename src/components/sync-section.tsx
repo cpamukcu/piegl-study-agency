@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { Icon } from "@/components/icons";
 import { CARD } from "@/components/ui";
 import { requestTime } from "@/lib/clock";
 import { DataDirError, getDataDir } from "@/lib/data-dir";
@@ -18,11 +19,16 @@ export async function SyncSection() {
 
   return (
     <section aria-labelledby="sync-heading" className={CARD}>
-      <h2 id="sync-heading" className="font-serif text-lg">
+      <div className="flex gap-4">
+      <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-lavender-50 text-lavender">
+        <Icon name="clock" />
+      </span>
+      <div className="min-w-0 flex-1">
+      <h2 id="sync-heading" className="text-lg">
         Automatic ZJU sync
       </h2>
-      <p className="mt-2 text-sm text-ink-muted">
-        A dedicated Chrome profile reads your ZJU courses, deadlines and timetable (read-only) every few days and imports them.
+      <p className="mt-1 text-sm text-ink-muted">
+        A dedicated Chrome profile reads your ZJU courses, deadlines, timetable and course files (read-only) every few days and imports them.
         Set it up on your Mac with <span className="font-mono">npm run sync:login</span> once, then{" "}
         <span className="font-mono">npm run sync:schedule</span>.
       </p>
@@ -32,7 +38,9 @@ export async function SyncSection() {
           : "No sync has run yet."}
       </p>
       {status?.lastSuccessAt ? <p className="mt-1 text-sm text-ink-muted">Last good sync: {formatDue(status.lastSuccessAt, now)}</p> : null}
-      {status && status.state !== "ok" ? <p className="mt-1 text-sm">{status.message}</p> : null}
+      {status ? <p className="mt-1 text-sm text-body">{status.message}</p> : null}
+      </div>
+      </div>
     </section>
   );
 }

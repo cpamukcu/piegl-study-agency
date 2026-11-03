@@ -5,8 +5,8 @@ import { ReviewData } from "@/components/review-data";
 export default function ReviewPage({ searchParams }: PageProps<"/review">) {
   return (
     <>
-      <PageHeader title="Weekly Review" description="Look back at the week and plan a realistic next one." />
-      <Suspense fallback={<p className="text-ink-muted">Loading…</p>}>
+      <PageHeader title="Weekly Review" icon="review" description="Look back at the week and plan a realistic next one." />
+      <Suspense fallback={<p className="text-ink-muted">Loading your week…</p>}>
         <ReviewData searchParams={searchParams} />
       </Suspense>
     </>

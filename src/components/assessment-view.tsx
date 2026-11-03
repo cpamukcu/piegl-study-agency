@@ -3,7 +3,7 @@ import type { Material } from "@/db/materials";
 import type { Attempt } from "@/db/study";
 
 const Score = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-xl bg-paper px-3 py-2 text-center">
+  <div className="rounded-[14px] bg-tint px-3 py-2 text-center">
     <dd className={`text-xl font-semibold ${value <= 2 ? "text-warn" : ""}`}>{value}/5</dd>
     <dt className="text-xs text-ink-muted">{label}</dt>
   </div>
@@ -43,7 +43,7 @@ export function AssessmentView({ attempt, materials }: { attempt: Attempt; mater
         <ul className="mt-1 space-y-1">
           {a.outline.map((o, i) => (
             <li key={i} className="flex gap-2">
-              <span className={`h-fit shrink-0 rounded-full px-2 py-0.5 text-xs ${o.label === "fact" ? "bg-surface-strong" : "border border-line"}`}>
+              <span className={`h-fit shrink-0 rounded-full px-2 py-0.5 text-xs ${o.label === "fact" ? "bg-lavender-50" : "border border-line"}`}>
                 {o.label === "fact" ? "Fact" : "Interpretation"}
               </span>
               <span>

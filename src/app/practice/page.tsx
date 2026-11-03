@@ -8,6 +8,7 @@ export default function PracticePage({ searchParams }: PageProps<"/practice">) {
     <>
       <PageHeader
         title="Practice"
+        icon="practice"
         description="Professor Mode: answer one question at a time in your own words and get honest feedback against the slides."
       />
       <div className="space-y-6">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { CourseDot } from "@/components/course-dot";
+import { DetailHeader } from "@/components/detail-header";
 import { describeMaterial } from "@/components/material-list";
 import { BUTTON_SECONDARY, CARD } from "@/components/ui";
 import { getDb } from "@/db/connection";
@@ -20,20 +20,22 @@ export async function MaterialView({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-serif text-3xl tracking-tight">{material.title}</h1>
-        {course && (
-          <p className="mt-2 flex items-center gap-2 text-ink-muted">
-            <CourseDot color={course.color} />
-            <Link href={`/courses/${course.id}`} className="hover:text-ink">
+      <DetailHeader
+        title={material.title}
+        icon="book"
+        color={course?.color}
+        eyebrow={
+          course ? (
+            <Link href={`/courses/${course.id}#materials-heading`} className="hover:text-accent">
               {course.title}
             </Link>
-          </p>
-        )}
-        <p className="mt-1 text-sm text-ink-muted">
+          ) : null
+        }
+      >
+        <p className="text-ink-muted">
           {material.fileName} · {describeMaterial(material)}
         </p>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {material.kind === "pdf" && (
             <a href={`/materials/${material.id}/file`} target="_blank" rel="noreferrer" className={BUTTON_SECONDARY}>
               Open original
@@ -43,8 +45,8 @@ export async function MaterialView({ params }: { params: Promise<{ id: string }>
             Download
           </a>
         </div>
-        {material.extractionError && <p className="mt-2 text-sm text-warn">{material.extractionError}</p>}
-      </header>
+        {material.extractionError && <p className="text-warn">{material.extractionError}</p>}
+      </DetailHeader>
 
       {pages.length === 0 ? (
         <section className={CARD}>
@@ -58,18 +60,18 @@ export async function MaterialView({ params }: { params: Promise<{ id: string }>
         <ol className="space-y-4">
           {pages.map((p) => (
             <li key={p.page} id={`p-${p.page}`} className={`${CARD} scroll-mt-6`}>
-              <h2 className="flex items-baseline justify-between text-sm font-semibold">
+              <h2 className="flex items-baseline justify-between text-[13px] font-bold uppercase tracking-[0.08em] text-ink-muted">
                 <span>
                   {unit} {p.page}
                 </span>
                 {material.kind === "pdf" && (
-                  <a href={`/materials/${material.id}/file#page=${p.page}`} target="_blank" rel="noreferrer" className="font-normal text-ink-muted hover:text-ink">
+                  <a href={`/materials/${material.id}/file#page=${p.page}`} target="_blank" rel="noreferrer" className="font-semibold normal-case tracking-normal text-accent hover:underline">
                     View page
                   </a>
                 )}
               </h2>
               {p.text ? (
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed">{p.text}</p>
+                <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-ink">{p.text}</p>
               ) : (
                 <p className="mt-2 text-sm text-ink-muted">No text on this {unit.toLowerCase()}.</p>
               )}

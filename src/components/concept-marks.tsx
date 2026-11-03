@@ -23,7 +23,15 @@ export function ConceptMarks({ concepts, materials }: { concepts: Concept[]; mat
                 name="status"
                 value={s}
                 aria-pressed={c.status === s}
-                className={`rounded-full border px-3 py-1 text-xs ${c.status === s ? (s === "confusing" ? "border-warn bg-warn text-white" : "border-brand bg-brand text-white") : "border-line hover:bg-surface-strong"}`}
+                className={`rounded-full px-3 py-1.5 text-[13px] font-semibold transition active:scale-[0.97] ${
+                  c.status === s
+                    ? s === "confusing"
+                      ? "bg-coral-50 text-coral-ink ring-1 ring-coral/50"
+                      : s === "understand"
+                        ? "bg-mint-50 text-mint-ink ring-1 ring-mint/50"
+                        : "bg-lavender-50 text-accent ring-1 ring-lavender/50"
+                    : "text-ink-muted ring-1 ring-line-strong hover:bg-tint"
+                }`}
               >
                 {LABELS[s]}
               </button>

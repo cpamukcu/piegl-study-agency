@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { deleteNoteAction, deleteProjectAction, deleteSourceAction, setSourceVerifiedAction } from "@/app/actions";
 import { aiStatus } from "@/ai";
-import { CourseDot } from "@/components/course-dot";
+import { DetailHeader } from "@/components/detail-header";
 import { NoteForm, PlanButton, SourceForm } from "@/components/research-forms";
 import { BUTTON_DANGER, BUTTON_SECONDARY, CARD } from "@/components/ui";
 import { getDb } from "@/db/connection";
@@ -33,9 +33,9 @@ function List({ title, items }: { title: string; items: string[] }) {
 
 function NoteLabel({ note, sources }: { note: Note; sources: Map<string, Source> }) {
   const base = "mr-2 rounded-full px-2 py-0.5 text-xs";
-  if (note.label === "mine") return <span className={`${base} bg-surface-strong`}>Mine</span>;
+  if (note.label === "mine") return <span className={`${base} bg-lavender-50`}>Mine</span>;
   if (note.label === "ai-interpretation") return <span className={`${base} border border-line`}>AI interpretation</span>;
-  return <span className={`${base} bg-surface-strong`}>From: {sources.get(note.sourceId ?? "")?.title ?? "source"}</span>;
+  return <span className={`${base} bg-lavender-50`}>From: {sources.get(note.sourceId ?? "")?.title ?? "source"}</span>;
 }
 
 export async function ResearchView({ params }: { params: Promise<{ id: string }> }) {
@@ -54,23 +54,15 @@ export async function ResearchView({ params }: { params: Promise<{ id: string }>
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="font-serif text-3xl tracking-tight">{project.question}</h1>
-        {course && (
-          <p className="mt-2 flex items-center gap-2 text-ink-muted">
-            <CourseDot color={course.color} />
-            {course.title}
-          </p>
-        )}
-      </header>
+      <DetailHeader title={project.question} icon="research" color={course?.color} eyebrow={course ? course.title : "Research question"} />
 
       <section aria-labelledby="plan-heading" className={CARD}>
-        <h2 id="plan-heading" className="font-serif text-lg">
+        <h2 id="plan-heading" className="text-lg">
           Plan
         </h2>
         {plan ? (
           <>
-            <p className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
+            <p className="mt-2 rounded-[14px] border border-line px-3 py-2 text-sm">
               <strong>AI interpretation</strong> by {project.planModel}. Suggestions for how to search, not findings. It names no sources on purpose.
             </p>
             <List title="Smaller questions" items={plan.subquestions} />
@@ -95,7 +87,7 @@ export async function ResearchView({ params }: { params: Promise<{ id: string }>
       </section>
 
       <section aria-labelledby="sources-heading" className={CARD}>
-        <h2 id="sources-heading" className="font-serif text-lg">
+        <h2 id="sources-heading" className="text-lg">
           Sources ({sources.filter((s) => s.verifiedAt).length} of {sources.length} verified)
         </h2>
         <p className="mt-2 text-sm text-ink-muted">Only you add sources. Mark one verified after you have opened it and checked it says what you think.</p>
@@ -108,9 +100,9 @@ export async function ResearchView({ params }: { params: Promise<{ id: string }>
                   <p className="font-medium">
                     {s.title}
                     {s.verifiedAt ? (
-                      <span className="ml-2 rounded-full bg-brand px-2 py-0.5 text-xs text-white">Verified {formatDue(s.verifiedAt, now)}</span>
+                      <span className="ml-2 rounded-full bg-mint-50 px-2.5 py-0.5 text-xs font-semibold text-mint-ink">Verified {formatDue(s.verifiedAt, now)}</span>
                     ) : (
-                      <span className="ml-2 rounded-full border border-warn px-2 py-0.5 text-xs text-warn">Not verified</span>
+                      <span className="ml-2 rounded-full bg-coral-50 px-2.5 py-0.5 text-xs font-semibold text-coral-ink">Not verified</span>
                     )}
                   </p>
                   <p className="text-ink-muted">
@@ -149,7 +141,7 @@ export async function ResearchView({ params }: { params: Promise<{ id: string }>
       </section>
 
       <section aria-labelledby="notes-heading" className={CARD}>
-        <h2 id="notes-heading" className="font-serif text-lg">
+        <h2 id="notes-heading" className="text-lg">
           Notes
         </h2>
         <p className="mt-2 text-sm text-ink-muted">Every note says whose idea it is, so you never mix up your thinking, a source, and an AI.</p>
@@ -175,7 +167,7 @@ export async function ResearchView({ params }: { params: Promise<{ id: string }>
       </section>
 
       <section aria-labelledby="delete-project-heading" className={CARD}>
-        <h2 id="delete-project-heading" className="font-serif text-lg">
+        <h2 id="delete-project-heading" className="text-lg">
           Delete research question
         </h2>
         <p className="mt-2 text-sm text-ink-muted">Deletes its plan, sources and notes.</p>

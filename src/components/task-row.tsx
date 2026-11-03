@@ -1,7 +1,10 @@
 import { postponeTaskAction, setTaskStatusAction } from "@/app/actions";
-import { CourseDot } from "@/components/course-dot";
+import { CourseBadge } from "@/components/course-dot";
+import { Icon } from "@/components/icons";
+import { PriorityPill, StatusPill } from "@/components/priority-pill";
+import { TaskCheck } from "@/components/task-check";
 import { TaskEditor } from "@/components/task-editor";
-import { BUTTON_PRIMARY, BUTTON_SECONDARY, CARD } from "@/components/ui";
+import { BUTTON_GHOST, CARD } from "@/components/ui";
 import type { Course } from "@/db/courses";
 import type { Task } from "@/db/tasks";
 import { TASK_TYPE_LABELS } from "@/lib/labels";
@@ -14,67 +17,53 @@ export function TaskRow({ task, course, now }: TaskRowProps) {
   const overdue = !done && task.dueAt !== null && task.dueAt < now;
 
   return (
-    <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className={`font-medium ${done ? "text-ink-muted line-through" : ""}`}>{task.title}</p>
-        <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
-          {course && (
-            <span className="inline-flex items-center gap-1.5">
-              <CourseDot color={course.color} />
-              {course.title}
-            </span>
-          )}
-          <span>{TASK_TYPE_LABELS[task.type]}</span>
-          {task.dueAt !== null && (
-            <span className={overdue ? "font-medium text-warn" : undefined}>
-              {overdue ? `Overdue · ${formatDue(task.dueAt, now)}` : formatDue(task.dueAt, now)}
-            </span>
-          )}
-          {task.estMinutes !== null && <span>about {humanDuration(task.estMinutes * MINUTE_MS)}</span>}
-          {task.importance === 3 && <span>Important</span>}
-          {task.status === "postponed" && <span>Postponed</span>}
-        </p>
-        {task.notes && <p className="mt-1 max-w-prose text-sm text-ink-muted">{task.notes}</p>}
-        <TaskEditor task={task} />
-      </div>
-      <div className="flex shrink-0 gap-2">
-        {done ? (
-          <form action={setTaskStatusAction}>
-            <input type="hidden" name="id" value={task.id} />
-            <input type="hidden" name="status" value="todo" />
-            <button type="submit" className={BUTTON_SECONDARY} aria-label={`Reopen "${task.title}"`}>
-              Reopen
-            </button>
-          </form>
-        ) : (
-          <>
-            <form action={setTaskStatusAction}>
+    <li className="flex gap-3.5 border-b border-line py-4 first:pt-2 last:border-b-0 last:pb-1">
+      <form action={setTaskStatusAction} className="pt-0.5">
+        <input type="hidden" name="id" value={task.id} />
+        <input type="hidden" name="status" value={done ? "todo" : "done"} />
+        <TaskCheck done={done} title={task.title} />
+      </form>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className={`text-[15px] font-semibold leading-snug ${done ? "text-faint line-through decoration-faint/60" : "text-ink"}`}>{task.title}</p>
+            <p className={`mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] font-medium ${done ? "text-faint" : "text-ink-muted"}`}>
+              <CourseBadge course={course} />
+              <span>{TASK_TYPE_LABELS[task.type]}</span>
+              {task.dueAt !== null && (
+                <span className={`inline-flex items-center gap-1 ${overdue ? "font-semibold text-coral-ink" : ""}`}>
+                  <Icon name={overdue ? "flag" : "clock"} className="size-3.5" />
+                  <span>{overdue ? `Overdue · ${formatDue(task.dueAt, now)}` : formatDue(task.dueAt, now)}</span>
+                </span>
+              )}
+              {task.estMinutes !== null && <span>about {humanDuration(task.estMinutes * MINUTE_MS)}</span>}
+              {!done && <PriorityPill importance={task.importance} />}
+              {task.status === "postponed" && <StatusPill tone="amber">Postponed</StatusPill>}
+            </p>
+          </div>
+          {!done && (
+            <form action={postponeTaskAction} className="shrink-0">
               <input type="hidden" name="id" value={task.id} />
-              <input type="hidden" name="status" value="done" />
-              <button type="submit" className={BUTTON_PRIMARY} aria-label={`Mark "${task.title}" done`}>
-                Done
-              </button>
-            </form>
-            <form action={postponeTaskAction}>
-              <input type="hidden" name="id" value={task.id} />
-              <button type="submit" className={BUTTON_SECONDARY} aria-label={`Postpone "${task.title}" by one day`}>
+              <button type="submit" className={`${BUTTON_GHOST} px-2.5 py-1.5 text-[13px]`} aria-label={`Postpone "${task.title}" by one day`} title="Postpone by one day">
                 +1 day
               </button>
             </form>
-          </>
-        )}
+          )}
+        </div>
+        {task.notes && <p className="mt-1.5 max-w-prose text-sm text-body">{task.notes}</p>}
+        <TaskEditor task={task} />
       </div>
     </li>
   );
 }
 
-type TaskSectionProps = { id: string; title: string; tasks: Task[]; courseById: Map<string, Course>; now: number };
+type TaskSectionProps = { id: string; title: string; tasks: Task[]; courseById: Map<string, Course>; now: number; tone?: "default" | "urgent" };
 
-export function TaskSection({ id, title, tasks, courseById, now }: TaskSectionProps) {
+export function TaskSection({ id, title, tasks, courseById, now, tone = "default" }: TaskSectionProps) {
   return (
-    <section aria-labelledby={`${id}-heading`} className={CARD}>
-      <h2 id={`${id}-heading`} className="font-serif text-lg">
-        {title} <span className="text-sm text-ink-muted">({tasks.length})</span>
+    <section aria-labelledby={`${id}-heading`} className={`${CARD} ${tone === "urgent" ? "bg-[#fff8fb] ring-coral/25" : ""}`}>
+      <h2 id={`${id}-heading`} className="flex items-center gap-2 text-lg">
+        {title} <span className="text-sm font-semibold text-ink-muted">({tasks.length})</span>
       </h2>
       <ul className="mt-2">
         {tasks.map((task) => (

@@ -46,8 +46,8 @@ export function CourseForm({ course, defaultColor = "#2f5d62" }: { course?: Edit
   const e = state.errors;
 
   return (
-    <section id={course ? "edit-course" : "new-course"} aria-labelledby="course-form-heading" className={CARD}>
-      <h2 id="course-form-heading" className="font-serif text-lg">
+    <section id={course ? "edit-course" : "new-course"} aria-labelledby="course-form-heading" className={`${CARD} scroll-mt-8`}>
+      <h2 id="course-form-heading" className="text-lg">
         {course ? "Edit course" : "Add a course"}
       </h2>
       <form key={state.nonce} action={action} noValidate className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -81,7 +81,7 @@ export function CourseForm({ course, defaultColor = "#2f5d62" }: { course?: Edit
           <label htmlFor="course-color" className={LABEL}>
             Color
           </label>
-          <input id="course-color" name="color" type="color" defaultValue={v.color} className="mt-1 h-10 w-16 rounded-md border border-line bg-paper" {...invalidProps("course", "color", e)} />
+          <input id="course-color" name="color" type="color" defaultValue={v.color} className="mt-1.5 h-11 w-20 cursor-pointer rounded-[12px] border border-line-strong bg-surface p-1" {...invalidProps("course", "color", e)} />
           <FieldError form="course" name="color" errors={e} />
         </div>
         <div className="sm:col-span-2">

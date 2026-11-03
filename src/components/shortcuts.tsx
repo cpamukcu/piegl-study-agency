@@ -3,13 +3,8 @@
 import { useRouter } from "next/navigation";
 import { Fragment, useEffect, useRef } from "react";
 import { BUTTON_SECONDARY } from "@/components/ui";
+import { SHORTCUTS } from "@/lib/shortcuts";
 
-export const SHORTCUTS = [
-  { key: "n", label: "New task", href: "/deadlines#new-task", focusId: "task-title" },
-  { key: "c", label: "New course", href: "/courses#new-course", focusId: "course-title" },
-  { key: "t", label: "Go to Today", href: "/today", focusId: null },
-  { key: "d", label: "Go to Deadlines", href: "/deadlines", focusId: null },
-] as const;
 
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -61,22 +56,22 @@ export function Shortcuts() {
     <dialog
       ref={dialogRef}
       aria-labelledby="shortcuts-heading"
-      className="m-auto rounded-lg border border-line bg-surface p-6 text-ink backdrop:bg-black/30"
+      className="m-auto w-[min(92vw,380px)] rounded-[24px] bg-surface p-6 text-body shadow-lift backdrop:bg-[#302a52]/25 backdrop:backdrop-blur-sm"
     >
-      <h2 id="shortcuts-heading" className="font-serif text-lg">
+      <h2 id="shortcuts-heading" className="text-xl">
         Keyboard shortcuts
       </h2>
-      <dl className="mt-4 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 text-sm">
+      <dl className="mt-5 grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 text-[15px]">
         {[...SHORTCUTS, { key: "?", label: "Show or hide this list" }].map((s) => (
           <Fragment key={s.key}>
             <dt>
-              <kbd className="rounded border border-line px-1.5 font-mono">{s.key}</kbd>
+              <kbd className="inline-flex min-w-8 justify-center rounded-lg border border-line-strong bg-tint px-2 py-0.5 font-sans text-sm font-semibold text-ink">{s.key}</kbd>
             </dt>
             <dd>{s.label}</dd>
           </Fragment>
         ))}
       </dl>
-      <form method="dialog" className="mt-4">
+      <form method="dialog" className="mt-6">
         <button type="submit" className={BUTTON_SECONDARY}>
           Close
         </button>

@@ -56,7 +56,7 @@ export async function PracticeData({ searchParams }: { searchParams: Promise<Rec
               {course.title} · {KIND_LABELS[question.kind]}
             </p>
           )}
-          <h2 id="question-heading" className="mt-2 font-serif text-xl">
+          <h2 id="question-heading" className="mt-2 text-xl">
             {question.question}
           </h2>
           {question.refs.length > 0 && (
@@ -71,7 +71,7 @@ export async function PracticeData({ searchParams }: { searchParams: Promise<Rec
 
         {latest && (
           <section aria-labelledby="feedback-heading" className={CARD}>
-            <h2 id="feedback-heading" className="font-serif text-lg">
+            <h2 id="feedback-heading" className="text-lg">
               Feedback on your answer ({formatDue(latest.createdAt, now)})
             </h2>
             <blockquote className="my-3 whitespace-pre-line border-l-2 border-line pl-3 text-sm text-ink-muted">{latest.answer}</blockquote>
@@ -81,7 +81,7 @@ export async function PracticeData({ searchParams }: { searchParams: Promise<Rec
 
         {earlier.length > 0 && (
           <section aria-labelledby="earlier-heading" className={CARD}>
-            <h2 id="earlier-heading" className="font-serif text-lg">
+            <h2 id="earlier-heading" className="text-lg">
               Earlier tries
             </h2>
             {earlier.map((a) => (
@@ -129,7 +129,7 @@ export async function PracticeData({ searchParams }: { searchParams: Promise<Rec
           .filter((c) => questions.some((q) => q.courseId === c.id))
           .map((c) => (
             <section key={c.id} aria-labelledby={`q-${c.id}`} className={CARD}>
-              <h2 id={`q-${c.id}`} className="flex items-center gap-2 font-serif text-lg">
+              <h2 id={`q-${c.id}`} className="flex items-center gap-2 text-lg">
                 <CourseDot color={c.color} />
                 {c.title}
               </h2>
@@ -139,7 +139,7 @@ export async function PracticeData({ searchParams }: { searchParams: Promise<Rec
                   .map((q) => (
                     <li key={q.id} className="border-b border-line py-2 text-sm last:border-b-0">
                       <Link href={`/practice?q=${q.id}`} className="underline-offset-2 hover:underline">
-                        <span className="mr-2 rounded-full bg-surface-strong px-2 py-0.5 text-xs">{KIND_LABELS[q.kind]}</span>
+                        <span className="mr-2 rounded-full bg-lavender-50 px-2 py-0.5 text-xs">{KIND_LABELS[q.kind]}</span>
                         {q.question}
                       </Link>
                       {tries.get(q.id) ? <span className="ml-2 text-ink-muted">· answered {tries.get(q.id)}×</span> : null}
