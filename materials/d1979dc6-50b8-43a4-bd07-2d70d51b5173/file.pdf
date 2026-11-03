@@ -1,0 +1,92 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R 10 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 147 >>
+stream
+BT
+/F1 14 Tf
+72 720 Td
+18 TL
+(Week 8: Diffusion of innovations) Tj T*
+(Why do some new products spread quickly and others never take off?) Tj T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 205 >>
+stream
+BT
+/F1 14 Tf
+72 720 Td
+18 TL
+(Adopter categories) Tj T*
+(Innovators, early adopters, early majority, late majority, laggards.) Tj T*
+(The chasm sits between early adopters and the early majority.) Tj T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 170 >>
+stream
+BT
+/F1 14 Tf
+72 720 Td
+18 TL
+(Five attributes that speed adoption) Tj T*
+(Relative advantage, compatibility, complexity,) Tj T*
+(trialability and observability.) Tj T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 211 >>
+stream
+BT
+/F1 14 Tf
+72 720 Td
+18 TL
+(Case: mobile payments in China) Tj T*
+(Network effects and QR codes lowered complexity and raised observability.) Tj T*
+(Discussion: what slowed adoption in other markets?) Tj T*
+ET
+endstream
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000134 00000 n 
+0000000204 00000 n 
+0000000330 00000 n 
+0000000528 00000 n 
+0000000654 00000 n 
+0000000910 00000 n 
+0000001036 00000 n 
+0000001257 00000 n 
+0000001385 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+1648
+%%EOF
