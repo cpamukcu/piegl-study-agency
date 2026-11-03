@@ -1,14 +1,18 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { deleteCourseAction, deleteMeetingAction, deleteRuleAction } from "@/app/actions";
+import { deleteCourseAction, deleteMeetingAction, deleteRuleAction, setCourseAiAction } from "@/app/actions";
 import { CourseDot } from "@/components/course-dot";
 import { CourseForm } from "@/components/course-form";
+import { MaterialList } from "@/components/material-list";
+import { MaterialUpload } from "@/components/material-upload";
 import { MeetingForm } from "@/components/meeting-form";
 import { RuleForm } from "@/components/rule-form";
 import { TaskRow } from "@/components/task-row";
 import { BUTTON_DANGER, BUTTON_SECONDARY, CARD } from "@/components/ui";
 import { getDb } from "@/db/connection";
 import { getCourse } from "@/db/courses";
+import { listMaterials } from "@/db/materials";
 import { listMeetingTimes } from "@/db/meetings";
 import { listRules, materializePrepTasks, type RecurrenceRule } from "@/db/rules";
 import { listTasks } from "@/db/tasks";
@@ -35,6 +39,7 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
   const meetings = listMeetingTimes(db, id);
   const rules = listRules(db, id);
   const tasks = listTasks(db, { courseId: id });
+  const materials = listMaterials(db, id);
 
   return (
     <div className="space-y-6">
@@ -82,6 +87,24 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
         <MeetingForm courseId={course.id} />
       </section>
 
+      <section aria-labelledby="materials-heading" className={CARD}>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="materials-heading" className="font-serif text-lg">
+            Materials
+          </h2>
+          {materials.some((m) => m.extraction === "ok") && (
+            <Link href={`/prepare?course=${course.id}`} className="text-sm underline underline-offset-2">
+              Prepare a class from these →
+            </Link>
+          )}
+        </div>
+        <p className="mt-2 text-sm text-ink-muted">
+          Files stay in your data folder. ZJU sync also downloads the PDF and PPTX files your teachers post on Courses@ZJU.
+        </p>
+        <MaterialList materials={materials} />
+        <MaterialUpload courseId={course.id} />
+      </section>
+
       <section aria-labelledby="rules-heading" className={CARD}>
         <h2 id="rules-heading" className="font-serif text-lg">
           Prep routine
@@ -118,6 +141,24 @@ export async function CourseDetail({ params }: { params: Promise<{ id: string }>
             ))}
           </ul>
         )}
+      </section>
+
+      <section aria-labelledby="ai-heading" className={CARD}>
+        <h2 id="ai-heading" className="font-serif text-lg">
+          AI help for this course
+        </h2>
+        <p className="mt-2 text-sm text-ink-muted">
+          {course.aiAllowed
+            ? "On. Briefs and Professor Mode may send text from this course's files to the Claude API, after you preview it."
+            : "Off. Nothing from this course is ever sent to an AI. Use this if the course does not allow AI tools."}
+        </p>
+        <form action={setCourseAiAction} className="mt-3">
+          <input type="hidden" name="id" value={course.id} />
+          <input type="hidden" name="aiAllowed" value={course.aiAllowed ? "0" : "1"} />
+          <button type="submit" className={BUTTON_SECONDARY}>
+            {course.aiAllowed ? "Turn AI off for this course" : "Turn AI on for this course"}
+          </button>
+        </form>
       </section>
 
       <CourseForm course={course} />

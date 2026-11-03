@@ -88,4 +88,132 @@ export const MIGRATIONS: string[] = [
   UPDATE tasks SET source_due_at = due_at WHERE source = 'zju';
   UPDATE courses SET source_code = code, source_instructor = instructor, source_semester = semester WHERE source = 'zju';
   `,
+  // 4: materials (M2), AI study aids (M4), Professor Mode (M5), research (M6), weekly review (M7).
+  `
+  CREATE TABLE materials (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    file_name TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('pdf', 'pptx', 'text', 'other')),
+    rel_path TEXT NOT NULL,
+    sha256 TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    page_count INTEGER,
+    extraction TEXT NOT NULL CHECK (extraction IN ('ok', 'no-text', 'failed', 'unsupported')),
+    extraction_error TEXT,
+    source TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual', 'zju')),
+    external_id TEXT UNIQUE,
+    created_at INTEGER NOT NULL,
+    UNIQUE (course_id, sha256)
+  );
+
+  -- ZJU files the owner deleted, so sync does not download them again.
+  CREATE TABLE deleted_external (
+    external_id TEXT PRIMARY KEY,
+    deleted_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE material_pages (
+    material_id TEXT NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
+    page INTEGER NOT NULL CHECK (page > 0),
+    text TEXT NOT NULL,
+    PRIMARY KEY (material_id, page)
+  );
+
+  CREATE TABLE briefs (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    class_at INTEGER,
+    material_ids_json TEXT NOT NULL,
+    sections_json TEXT NOT NULL,
+    model TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE concepts (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    brief_id TEXT REFERENCES briefs(id) ON DELETE SET NULL,
+    term TEXT NOT NULL,
+    definition TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'review' CHECK (status IN ('understand', 'review', 'confusing')),
+    refs_json TEXT NOT NULL DEFAULT '[]',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE flashcards (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    brief_id TEXT REFERENCES briefs(id) ON DELETE SET NULL,
+    front TEXT NOT NULL,
+    back TEXT NOT NULL,
+    refs_json TEXT NOT NULL DEFAULT '[]',
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE practice_questions (
+    id TEXT PRIMARY KEY,
+    course_id TEXT NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    brief_id TEXT REFERENCES briefs(id) ON DELETE SET NULL,
+    question TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('recall', 'explain', 'apply', 'critique')),
+    refs_json TEXT NOT NULL DEFAULT '[]',
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE practice_attempts (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES practice_questions(id) ON DELETE CASCADE,
+    answer TEXT NOT NULL,
+    assessment_json TEXT NOT NULL,
+    model TEXT NOT NULL,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE research_projects (
+    id TEXT PRIMARY KEY,
+    course_id TEXT REFERENCES courses(id) ON DELETE SET NULL,
+    question TEXT NOT NULL,
+    plan_json TEXT,
+    plan_model TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE sources (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES research_projects(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    authors TEXT,
+    year TEXT,
+    locator TEXT,
+    notes TEXT,
+    relevance INTEGER NOT NULL DEFAULT 2 CHECK (relevance BETWEEN 1 AND 3),
+    verified_at INTEGER,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE notes (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES research_projects(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    label TEXT NOT NULL CHECK (label IN ('mine', 'ai-interpretation', 'from-source')),
+    source_id TEXT REFERENCES sources(id) ON DELETE CASCADE,
+    created_at INTEGER NOT NULL,
+    CHECK (label <> 'from-source' OR source_id IS NOT NULL)
+  );
+
+  CREATE TABLE weekly_reviews (
+    week_start INTEGER PRIMARY KEY,
+    went_well TEXT,
+    was_hard TEXT,
+    reflection TEXT,
+    plan_json TEXT NOT NULL DEFAULT '[]',
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  );
+  `,
 ];

@@ -126,3 +126,7 @@ export function updateCourse(db: Db, id: string, input: CourseInput, now = Date.
 export function deleteCourse(db: Db, id: string): void {
   db.prepare("DELETE FROM courses WHERE id = ?").run(id);
 }
+
+export function setCourseAi(db: Db, id: string, allowed: boolean, now = Date.now()): void {
+  db.prepare("UPDATE courses SET ai_allowed = ?, updated_at = ? WHERE id = ?").run(allowed ? 1 : 0, now, id);
+}

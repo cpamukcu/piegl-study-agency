@@ -16,11 +16,14 @@
     "sync:unschedule": "tsx --tsconfig tsconfig.json src/sync/cli.ts schedule remove"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.3.0",
+    "fflate": "0.8.3",
     "next": "16.4.0",
     "playwright": "^1.64.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tsx": "^4.23.15",
+    "unpdf": "1.9.1",
     "zod": "^4.6.6"
   },
   "devDependencies": {

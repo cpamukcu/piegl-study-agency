@@ -7,12 +7,14 @@ import { getDb } from "@/db/connection";
 import { listCourses, type Course } from "@/db/courses";
 import { listMeetingTimes } from "@/db/meetings";
 import { listRules, materializePrepTasks } from "@/db/rules";
+import { getReview } from "@/db/reviews";
+import { listConcepts } from "@/db/study";
 import { listTasks } from "@/db/tasks";
 import { listTerms } from "@/db/terms";
 import { requestTime } from "@/lib/clock";
 import { sessionsBetween } from "@/lib/sessions";
 import { groupTasks } from "@/lib/deadline-groups";
-import { DAY_MS, formatDue, formatMinutes, startOfShanghaiDay } from "@/lib/time";
+import { DAY_MS, formatDue, formatMinutes, startOfShanghaiDay, startOfShanghaiWeek } from "@/lib/time";
 import { buildToday } from "@/lib/today";
 import { weeklyWorkload } from "@/lib/workload";
 
@@ -57,6 +59,11 @@ export async function TodayData() {
   const planned = weeklyWorkload(tasks, now, 1)[0]?.minutes ?? 0;
   const classesLeftToday = sessions.filter((s) => startOfShanghaiDay(s.startsAt) === startOfShanghaiDay(now)).length;
   const nextCourse = view.nextSession ? courseOf(view.nextSession.courseId) : null;
+  const confusing = listConcepts(db, { status: "confusing" });
+  const weekStart = startOfShanghaiWeek(now);
+  const todayIndex = Math.round((startOfShanghaiDay(now) - weekStart) / DAY_MS);
+  const openIds = new Set(tasks.filter((t) => t.status !== "done").map((t) => t.id));
+  const plannedToday = (getReview(db, weekStart - 7 * DAY_MS)?.plan ?? []).filter((p) => p.day === todayIndex && openIds.has(p.taskId));
   const hasRoutine = nextCourse ? listRules(db, nextCourse.id).some((r) => r.active) : false;
 
   const stats = [
@@ -93,6 +100,17 @@ export async function TodayData() {
         </Link>
       ))}
     </nav>
+
+    {plannedToday.length > 0 && (
+      <Card title="Planned for today">
+        <ul className="mt-2 list-disc pl-5 text-sm">
+          {plannedToday.map((p) => (
+            <li key={p.taskId}>{p.title}</li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-ink-muted">From your weekly review.</p>
+      </Card>
+    )}
 
     <div className="grid gap-4 md:grid-cols-2">
       {view.dueNext.length === 0 && view.overdueCount === 0 ? (
@@ -164,7 +182,29 @@ export async function TodayData() {
         <EmptyState title="Highest-leverage task">The one task worth doing first today, with the reason, will show here.</EmptyState>
       )}
 
-      <EmptyState title="Confusing concepts">Concepts you mark as confusing in Prepare Class will collect here.</EmptyState>
+      {confusing.length === 0 ? (
+        <EmptyState title="Confusing concepts">Concepts you mark as confusing in Prepare Class will collect here.</EmptyState>
+      ) : (
+        <Card title="Confusing concepts">
+          <ul className="mt-2 space-y-2 text-sm">
+            {confusing.slice(0, 5).map((c) => (
+              <li key={c.id}>
+                {c.briefId ? (
+                  <Link href={`/prepare/briefs/${c.briefId}`} className="font-medium underline-offset-2 hover:underline">
+                    {c.term}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{c.term}</span>
+                )}
+                <span className="block text-ink-muted">
+                  <CourseName course={courseOf(c.courseId)} />
+                </span>
+              </li>
+            ))}
+          </ul>
+          {confusing.length > 5 && <p className="mt-2 text-sm text-ink-muted">and {confusing.length - 5} more</p>}
+        </Card>
+      )}
     </div>
     </div>
   );

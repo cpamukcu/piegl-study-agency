@@ -1,6 +1,6 @@
 # PIEGL Study Agency
 
-A private study workspace for the ZJU PIEGL program. It runs only on your own Mac.
+A private study workspace for ZJU's PIEGL programme (Program in Innovation, Entrepreneurship and Global Leadership). It runs only on your own Mac.
 
 It helps you track course work and deadlines, prepare for each class from slides and readings, practise answering professor questions honestly, keep research notes with clear labels, and plan each week.
 
@@ -14,8 +14,8 @@ This app is for preparation, learning, and research support. You are responsible
 - Your database, course files, extracted text, ZJU login session, and logs live in `DATA_DIR` (default `~/PIEGL-data`), outside this repository. The app refuses a `DATA_DIR` inside the repo.
 - The database is one SQLite file, `DATA_DIR/study.db`, readable only by you.
 - `.gitignore` blocks secrets, databases, and course files (`.pdf`, `.ppt(x)`, `.doc(x)`), and a test checks this.
-- Your ZJU password is never stored. From milestone M3 you log in yourself in a browser window.
-- From milestone M4, text you choose to send goes to the Claude API (Anthropic). Courses can be set to "AI off".
+- Your ZJU password is never stored. You log in yourself in a browser window.
+- With an API key set, text you choose to send goes to the Claude API (Anthropic), after you see it. Courses can be set to "AI off".
 
 More detail: [docs/PRIVACY.md](docs/PRIVACY.md).
 
@@ -53,7 +53,7 @@ To show course names in English, put `course-names.json` in the same folder: a m
 
 ## Automatic sync (every few days)
 
-Runs on your Mac. A dedicated Chrome profile (`DATA_DIR/browser-profile`, not your everyday Chrome) reads your Courses@ZJU courses, deadlines and exams plus your graduate-system timetable with read-only requests, saves dated snapshots, and imports them. Your own edits are never overwritten.
+Runs on your Mac. A dedicated Chrome profile (`DATA_DIR/browser-profile`, not your everyday Chrome) reads your Courses@ZJU courses, deadlines and exams plus your graduate-system timetable with read-only requests, saves dated snapshots, and imports them. It then downloads the PDF and PPTX files your teachers posted (up to 40 per run) into `DATA_DIR/materials` and reads their text. Your own edits are never overwritten, and a file you delete is not downloaded again.
 
 ```bash
 npx playwright install chromium   # only if you do not use Google Chrome (then set SYNC_BROWSER=chromium)
@@ -63,13 +63,27 @@ npm run sync:schedule   # every morning at 08:30 it syncs if the last good sync 
 npm run sync:unschedule # turn it off
 ```
 
-- `SYNC_EVERY_DAYS` in `.env.local` changes the interval (default 3). A Mac that was asleep makes up the missed run when it wakes.
+- `SYNC_EVERY_DAYS` in `.env.local` changes the interval (default 3). `SYNC_MATERIALS=0` skips course-file downloads. A Mac that was asleep makes up the missed run when it wakes.
 - When ZJU logs you out, the sync stops, shows a macOS notification and Settings says so. Run `npm run sync:login` again. Failed runs retry the next morning.
 - The login is kept in `DATA_DIR/zju-session.json` (readable only by you). Your password is never seen or stored. Delete that file and `DATA_DIR/browser-profile` to forget the session.
 - Logs: `DATA_DIR/logs/sync.log`. Status: Settings → Automatic ZJU sync.
 - Spring–summer term: set `ZJU_YJSY_XQ` (see `.env.example`).
 - The network notes in `docs/data-sources.md` (Mullvad split tunnel, DNS) apply to this Chrome too.
 - If ZJU changes a page or API, the sync fails with a message instead of importing partial data.
+
+## Studying with the app
+
+| Screen | What it does |
+|---|---|
+| Courses → a course → Materials | Upload slides and readings (PDF, PPTX, text), or let sync bring them from Courses@ZJU. Each file opens as page-by-page text with a link to the original page. |
+| Prepare Class | Pick the next class (from your timetable) or a course, tick the files, and see exactly what would be sent. Then make a **Class Ready Brief**: overview, key points, concepts, questions to raise in class, flashcards and practice questions, every item linked to its page. Mark each concept *I understand*, *Review* or *Confusing*; confusing ones show on Today. |
+| Practice | **Professor Mode**: one question at a time. Answer in your own words; get scores for accuracy, clarity and evidence, what was missing, a short outline (notes, not a script) with each point labelled *fact* (with its page) or *interpretation*, and the follow-up a professor might ask. You can add your own questions. |
+| Research | Write a research question, optionally ask for a plan (smaller questions, search terms in English and Chinese, perspectives, where to look). The AI never names sources: you add them, and only you can mark one *verified*. Notes are labelled *mine*, *from a source* or *AI interpretation*. |
+| Weekly Review | The week in numbers (finished, postponed, overdue, practice), a short reflection, and a suggested plan for next week: earliest deadline first, about 3 hours a day, never after a task's deadline. Edit and save; each day's items show on Today. |
+
+### Turning AI on
+
+Put your Anthropic API key in `.env.local` as `ANTHROPIC_API_KEY=…` and restart the app. Briefs and research plans use `ANTHROPIC_MODEL` (default `claude-sonnet-5-5`); set `ANTHROPIC_PROFESSOR_MODEL=claude-opus-5-5` to grade Professor Mode answers with a stronger model. Without a key everything else works and nothing is sent. To keep one course away from AI entirely, open it and press **Turn AI off for this course**. What is sent, exactly, is in [docs/PRIVACY.md](docs/PRIVACY.md#what-goes-to-anthropic-only-when-ai-is-on).
 
 ## Scripts
 
@@ -82,12 +96,13 @@ npm run sync:unschedule # turn it off
 
 ## Supported file types
 
-Planned for milestone M2: PDF and PowerPoint (`.pptx`) with real text. Scanned slides (images only) are not supported yet; OCR is a later phase.
+PDF and PowerPoint (`.pptx`, including speaker notes) with real text, plus `.txt` and `.md`. Other files (`.ppt`, `.docx`, …) are kept and can be downloaded but not read. Scanned slides (images only) show as "no text layer"; OCR is a later phase. Files over 50 MB are refused.
 
 ## Limitations
 
 - Mac only, one user, no phone access yet.
-- ZJU sync depends on how ZJU sites work today and may break when they change. Manual entry always works.
+- ZJU sync depends on how ZJU sites work today and may break when they change. Manual entry and upload always work.
+- The course-file download endpoint comes from an open-source TronClass client and has not yet been confirmed from a live ZJU session (see `docs/data-sources.md`).
 - ZJU's terms may not allow automated access. You decide whether to use sync.
 
 ## Roadmap
@@ -97,10 +112,10 @@ Planned for milestone M2: PDF and PowerPoint (`.pptx`) with real text. Scanned s
 | M0 Foundation: app shell, privacy guards, docs | Done |
 | M1 Courses and Deadlines, snapshot import | Done |
 | Sync: Courses@ZJU and timetable, read-only | Built, needs a first real run on your Mac |
-| M2 Materials: upload, extract, view, download from Courses@ZJU | Planned |
-| M4 AI and Class Ready Brief | Planned |
-| M5 Professor Mode | Planned |
-| M6 Research workspace | Planned |
-| M7 Weekly Review and polish | Planned |
+| M2 Materials: upload, extract, view, download from Courses@ZJU | Done (download needs a first real run) |
+| M4 AI and Class Ready Brief | Done |
+| M5 Professor Mode | Done |
+| M6 Research workspace | Done |
+| M7 Weekly Review and polish | Done |
 
 Later: PIEGL site sync, DingTalk and email, APA 7 export, spaced repetition, `.ics` feed, OCR, iPhone access.

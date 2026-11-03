@@ -7,10 +7,15 @@ src/app/            routes; one per screen, plus /courses/[id]
 src/app/actions.ts  server actions (validate with src/lib/forms.ts, write, refresh)
 src/components/     UI; *-data.tsx are async server components that read the database
 src/db/             SQLite (node:sqlite): connection + migrations, one module per table group
+                    (courses, tasks, materials, study = briefs/concepts/cards/questions, research, reviews)
+src/extract/        per-page text from PDF (unpdf) and PPTX (slide XML via fflate); no OCR
+src/ai/             AIProvider interface, Claude adapter, and the brief / assess / research-plan prompts and schemas
+src/sync/           Playwright sync: Courses@ZJU, graduate timetable, course-file downloads, launchd schedule
 src/import/         snapshot schemas (Zod), mapping, and the import runner
 src/lib/            pure logic: time (Shanghai), sessions, recurrence, priority, workload, forms
 src/proxy.ts        refuses non-local Host headers (DNS rebinding guard)
-tests/              Vitest tests; tests/helpers has an in-memory database and a task factory
+tests/              Vitest tests; tests/helpers has an in-memory database, a task factory, a fake AI provider,
+                    and builders for small real PDF and PPTX files (the repo never holds course files)
 sample-data/        fake snapshots used by tests
 ```
 
@@ -19,7 +24,13 @@ Rules:
 - Client components never import `src/db/*` or `src/import/*` values (they pull in `node:sqlite`); type-only imports are fine.
 - Times are UTC milliseconds in storage and Shanghai time on screen (`src/lib/time.ts`).
 
-Planned additions: `src/extract/` (PDF and PPTX, M2), `src/sync/` (Playwright), `src/ai/` (provider interface and Claude adapter, M4).
+## AI rules in code
+
+- Every AI call goes through `AIProvider.generate` with a Zod schema; the result is validated before it is stored, together with the model name.
+- `getProvider()` returns `null` when `ANTHROPIC_API_KEY` is unset; every AI feature checks that and the course's `aiAllowed` flag before building a request.
+- The Claude adapter uses structured outputs (`output_config.format`) and server-side refusal fallback, and turns API errors into `AiError` messages the owner can act on.
+- Page references come back as `"<file>:<page>"` refs that are mapped to real pages; anything that does not match a page that was sent is dropped.
+- Tests use `tests/helpers/fake-ai.ts`; no test calls the real API.
 
 Do not name source folders `data`, `uploads`, `extracted`, `sessions`, or `logs`: `.gitignore` blocks those names anywhere in the tree, on purpose.
 

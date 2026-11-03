@@ -12,7 +12,26 @@ describe("openDb", () => {
       db,
       "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
     ).map((r) => r.name);
-    expect(tables).toEqual(["courses", "import_runs", "meeting_times", "recurrence_rules", "tasks", "terms"]);
+    expect(tables).toEqual([
+      "briefs",
+      "concepts",
+      "courses",
+      "deleted_external",
+      "flashcards",
+      "import_runs",
+      "material_pages",
+      "materials",
+      "meeting_times",
+      "notes",
+      "practice_attempts",
+      "practice_questions",
+      "recurrence_rules",
+      "research_projects",
+      "sources",
+      "tasks",
+      "terms",
+      "weekly_reviews",
+    ]);
     expect(one<{ user_version: number }>(db, "PRAGMA user_version")?.user_version).toBe(MIGRATIONS.length);
   });
 

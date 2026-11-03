@@ -23,16 +23,17 @@ Platform: TronClass (WisdomGarden). Auth: session cookie. Same-origin `GET` retu
 |---|---|---|
 | `GET /api/my-courses?page=1&page_size=100` | Enrolled courses | `id`, `name`, `course_code`, `instructors[].name`, `semester.name`, `academic_year.name`, `department.name`, `start_date`, `end_date`, `credit` |
 | `GET /api/todos?no-intercept=true` | Open to-dos across courses | `todo_list[]`: `id`, `type` (`homework`, `exam`), `title`, `course_id`, `course_name`, `end_time` (UTC) |
-| `GET /api/courses/{id}/activities` | Materials, homework, forums, pages, links | `activities[]`: `id`, `type` (`material`, `homework`, `forum`, `page`, `web_link`), `title`, `start_time`, `end_time`, `is_closed`, `published`, `module_id`, `uploads[]` (`id`, `name`, `size`, `type`) |
+| `GET /api/courses/{id}/activities` | Materials, homework, forums, pages, links | `activities[]`: `id`, `type` (`material`, `homework`, `forum`, `page`, `web_link`), `title`, `start_time`, `end_time`, `is_closed`, `published`, `module_id`, `uploads[]` (`id`, `reference_id`, `name`, `size`, `type`) |
+| `GET /api/uploads/reference/document/{reference_id}/url?preview=false` | A short-lived download link for one file | `url` |
 | `GET /api/courses/{id}/exams` | Quizzes and exams | `exams[]`: `id`, `title`, `type`, `start_time`, `end_time`, `is_closed` |
 | `GET /api/courses/{id}` | Course detail | `classroom_schedule` exists but was `null` for every course; timetable must come from the graduate system |
 
-Not yet verified: file download URL for `uploads[].id` (likely `/api/uploads/{id}/blob`). Check during M2 before downloading anything.
+File downloads (checked 2026-11-03 against the open-source TronClass client `GGQQmax/tronclass-cli`, which targets `courses.zju.edu.cn`): the download is keyed by the upload's `reference_id`, not its `id`. `GET /api/uploads/reference/document/{reference_id}/url?preview=false` answers `{"url": "…"}`; a plain `GET` of that URL with the same session returns the file. Not yet confirmed from a live ZJU session: if the sync reports "no download link" for every file, this is the first thing to recheck in the browser's network tab while opening a file on Courses@ZJU. Implemented in `src/sync/materials.ts`.
 
 Mapping to our model:
 - `my-courses` → **Course** (`source = "zju"`, `externalId = id`).
 - `activities` with `type = homework` and `exams` → **Task** (`assignment` / `exam`, `dueAt = end_time`, `externalId = "tc:activity:{id}"` or `"tc:exam:{id}"`).
-- `activities[].uploads` → **Material** (`externalId = "tc:upload:{id}"`, file fetched in M2).
+- `activities[].uploads` → **Material** (`externalId = "tc:upload:{id}"`). Sync downloads PDF, PPTX and text files (≤ 50 MB, published, from courses that have not ended) after importing the snapshot, at most 40 per run, skipping ones already downloaded or deleted by the owner.
 - `todos` is a cross-check: every open item there must also exist from `activities` or `exams`.
 - Implemented in `src/import/tronclass.ts`. Items that are not on the to-do list and already past are skipped; future ones get a note saying so.
 
@@ -62,7 +63,11 @@ Mapping to our model:
 
 The undergraduate notice board (also linked from the graduate system) publishes yearly holiday and make-up-day rules. They already show up in the timetable as one-off entries (e.g. `zc = "4"` on a Saturday). No separate feed found.
 
+## PIEGL programme (public facts)
+
+PIEGL is the Program in Innovation, Entrepreneurship and Global Leadership: an English-taught, two-year Master of Management for international students, run jointly by ZJU's International Campus and School of Management, launched in 2017. The AI prompts state this so briefs are pitched at the right level (`PROGRAM_CONTEXT` in `src/ai/brief.ts`). Sources: ZJU English newsroom and programme listings (Mastersportal, China Admissions), checked 2026-11-03.
+
 ## Not covered yet
 
-- PIEGL program site (URL unknown).
+- PIEGL programme site (no machine-readable feed found; course pages on Courses@ZJU are the source of truth).
 - DingTalk and email.

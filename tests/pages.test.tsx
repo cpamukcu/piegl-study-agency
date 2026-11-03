@@ -21,6 +21,10 @@ vi.mock("@/components/today-data", () => ({
 vi.mock("@/components/import-section", () => ({
   ImportSection: () => null,
 }));
+vi.mock("@/components/prepare-data", () => ({ PrepareData: () => <section aria-label="Prepare stub" /> }));
+vi.mock("@/components/practice-data", () => ({ PracticeData: () => <section aria-label="Practice stub" /> }));
+vi.mock("@/components/research-data", () => ({ ResearchData: () => <section aria-label="Research stub" /> }));
+vi.mock("@/components/review-data", () => ({ ReviewData: () => <section aria-label="Review stub" /> }));
 
 import CoursesPage from "@/app/courses/page";
 import DeadlinesPage from "@/app/deadlines/page";
@@ -31,7 +35,11 @@ import ReviewPage from "@/app/review/page";
 import SettingsPage from "@/app/settings/page";
 import TodayPage from "@/app/today/page";
 
-const PAGES: [string, ComponentType, string][] = [
+// Pages that read the URL get empty params, as on a plain visit.
+type Props = { params: Promise<Record<string, never>>; searchParams: Promise<Record<string, never>> };
+const props: Props = { params: Promise.resolve({}), searchParams: Promise.resolve({}) };
+
+const PAGES: [string, ComponentType<Props>, string][] = [
   ["today", TodayPage, "Today"],
   ["courses", CoursesPage, "Courses"],
   ["deadlines", DeadlinesPage, "Deadlines"],
@@ -44,7 +52,7 @@ const PAGES: [string, ComponentType, string][] = [
 
 describe("screens", () => {
   it.each(PAGES)("%s page has its heading", (_name, Page, heading) => {
-    render(<Page />);
+    render(<Page {...props} />);
     expect(screen.getByRole("heading", { level: 1, name: heading })).toBeInTheDocument();
   });
 
@@ -58,7 +66,7 @@ describe("screens", () => {
     ["practice", PracticePage],
     ["settings", SettingsPage],
   ] as const)("%s shows the integrity note", (_name, Page) => {
-    render(<Page />);
+    render(<Page {...props} />);
     expect(screen.getByRole("complementary", { name: "Academic integrity" })).toBeInTheDocument();
   });
 });

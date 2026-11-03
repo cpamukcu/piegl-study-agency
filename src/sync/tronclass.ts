@@ -38,6 +38,7 @@ function mapActivity(a: Obj) {
     module_id: num(a.module_id),
     uploads: list(a.uploads).map((u) => ({
       id: requireNumber(u.id, "upload"),
+      reference_id: num(u.reference_id),
       name: text(u.name) ?? "(unnamed)",
       size: num(u.size),
       type: text(u.type),

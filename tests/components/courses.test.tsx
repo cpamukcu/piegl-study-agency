@@ -31,6 +31,9 @@ vi.mock("@/app/actions", () => ({
   postponeTaskAction: vi.fn(),
   updateTaskAction: vi.fn(),
   deleteTaskAction: vi.fn(),
+  uploadMaterialAction: vi.fn(),
+  deleteMaterialAction: vi.fn(),
+  setCourseAiAction: vi.fn(),
 }));
 
 import { CourseDetail } from "@/components/course-detail";

@@ -51,7 +51,14 @@ export const tronclassSnapshotSchema = z.object({
           published: z.boolean().nullable(),
           module_id: z.number().nullable(),
           uploads: z.array(
-            z.object({ id: z.number(), name: z.string(), size: z.number().nullable(), type: z.string().nullable() }),
+            z.object({
+              id: z.number(),
+              // Older snapshots lack this; it is what the download URL needs.
+              reference_id: z.number().nullable().default(null),
+              name: z.string(),
+              size: z.number().nullable(),
+              type: z.string().nullable(),
+            }),
           ),
         }),
       ),

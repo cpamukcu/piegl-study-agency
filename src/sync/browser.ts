@@ -5,6 +5,7 @@ import path from "node:path";
 import { chromium, type BrowserContext, type Page, type Request } from "playwright";
 import { NeedsLoginError, SyncError } from "@/sync/errors";
 import { fetchTronclassSnapshot, type GetJson } from "@/sync/tronclass";
+import { downloadFiles, type DownloadReport, type GetBytes, type RemoteFile } from "@/sync/materials";
 import { buildYjsySnapshot } from "@/sync/yjsy";
 import type { TronclassSnapshot, YjsySnapshot } from "@/import/schemas";
 import { shanghaiParts } from "@/lib/time";
@@ -135,14 +136,47 @@ async function fetchTimetable(context: BrowserContext, now: number): Promise<Yjs
 
 export type FetchedSnapshots = { tronclass: TronclassSnapshot; yjsy: YjsySnapshot };
 
-export async function fetchAll(options: BrowserOptions, now: number): Promise<FetchedSnapshots> {
+export type FetchHooks = {
+  // Runs once both snapshots are in (the caller saves and imports them), before any file download.
+  afterSnapshots?: (snapshots: FetchedSnapshots) => void;
+  // Course files to download, given the snapshot; empty or missing means none.
+  pickFiles?: (snapshot: TronclassSnapshot) => RemoteFile[];
+  saveFile?: (file: RemoteFile, bytes: Uint8Array) => Promise<void>;
+  maxFiles?: number;
+};
+
+// Download links point at ZJU's file storage; follow them with the browser's own cookies, GET only.
+function byteFetcher(context: BrowserContext): GetBytes {
+  return async (url) => {
+    await sleep(REQUEST_GAP_MS);
+    const response = await context.request.get(url, { timeout: 120_000, maxRedirects: 5 });
+    if (response.status() === 401 || response.status() === 403) throw new NeedsLoginError("ZJU refused a file download.");
+    if (!response.ok()) throw new SyncError(`download answered ${response.status()}`);
+    return new Uint8Array(await response.body());
+  };
+}
+
+export async function fetchAll(
+  options: BrowserOptions,
+  now: number,
+  hooks: FetchHooks = {},
+): Promise<FetchedSnapshots & { files: DownloadReport | null }> {
   const context = await launch(options);
   try {
     const coursesPage = await openCourses(context);
-    const tronclass = await fetchTronclassSnapshot(pageFetcher(coursesPage), now);
+    const getJson = pageFetcher(coursesPage);
+    const tronclass = await fetchTronclassSnapshot(getJson, now);
     const yjsy = await fetchTimetable(context, now);
     await saveSession(context, options.dataDir);
-    return { tronclass, yjsy };
+    hooks.afterSnapshots?.({ tronclass, yjsy });
+
+    let files: DownloadReport | null = null;
+    const wanted = hooks.pickFiles?.(tronclass) ?? [];
+    if (wanted.length && hooks.saveFile) {
+      files = await downloadFiles(wanted, getJson, byteFetcher(context), hooks.saveFile, hooks.maxFiles ?? 40);
+      await saveSession(context, options.dataDir);
+    }
+    return { tronclass, yjsy, files };
   } finally {
     await context.close();
   }
